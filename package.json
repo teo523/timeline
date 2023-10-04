@@ -4,11 +4,14 @@
   "description": "A friendly music sequencer application for OS X and Windows.",
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
+    "predeploy" : "npm run build",
+    "deploy" : "gh-pages -d build",
     "build": "webpack --config webpack.prod.js",
     "serve": "npx http-server dist",
     "test": "jest",
     "format": "prettier --write src",
     "lint": "prettier --check src",
+
     "firebase": "firebase emulators:start",
     "firebase:deploy": "firebase deploy"
   },
