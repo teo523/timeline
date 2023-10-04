@@ -66,16 +66,6 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
         <Localized default="Open">open-song</Localized>
       </MenuItem>
 
-      <MenuItem
-        onClick={onClickSave}
-        disabled={rootStore.song.fileHandle === null}
-      >
-        <Localized default="Save">save-song</Localized>
-      </MenuItem>
-
-      <MenuItem onClick={onClickSaveAs}>
-        <Localized default="Save As">save-as</Localized>
-      </MenuItem>
 
       <MenuItem onClick={onClickDownload}>
         <Localized default="Download MIDI File">download-midi</Localized>

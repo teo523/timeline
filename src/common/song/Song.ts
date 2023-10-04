@@ -9,7 +9,6 @@ import {
   transaction,
 } from "mobx"
 import { createModelSchema, list, object, primitive } from "serializr"
-import { FirestoreSong, FirestoreSongData } from "../../firebase/song"
 import { TIME_BASE } from "../../main/Constants"
 import { isNotUndefined } from "../helpers/array"
 import { Measure } from "../measure/Measure"
@@ -25,8 +24,8 @@ export default class Song {
   timebase: number = TIME_BASE
   name: string = ""
   fileHandle: FileSystemFileHandle | null = null
-  firestoreReference: DocumentReference<FirestoreSong> | null = null
-  firestoreDataReference: DocumentReference<FirestoreSongData> | null = null
+  firestoreReference: null = null
+  firestoreDataReference: null = null
   isSaved = true
 
   constructor() {

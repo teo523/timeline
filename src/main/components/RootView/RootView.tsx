@@ -4,7 +4,6 @@ import { FC } from "react"
 import { useStores } from "../../hooks/useStores"
 import { ArrangeEditor } from "../ArrangeView/ArrangeEditor"
 import { BuildInfo } from "../BuildInfo"
-import { CloudFileDialog } from "../CloudFileDialog/CloudFileDialog"
 import { ControlSettingDialog } from "../ControlSettingDialog/ControlSettingDialog"
 import { ExportDialog } from "../ExportDialog/ExportDialog"
 import { ExportProgressDialog } from "../ExportDialog/ExportProgressDialog"
@@ -15,11 +14,9 @@ import { Navigation } from "../Navigation/Navigation"
 import { OnBeforeUnload } from "../OnBeforeUnload/OnBeforeUnload"
 import { PianoRollEditor } from "../PianoRoll/PianoRollEditor"
 import { SettingDialog } from "../SettingDialog/SettingDialog"
-import { SignInDialog } from "../SignInDialog/SignInDialog"
 import { TempoEditor } from "../TempoGraph/TempoEditor"
 import { TransportPanel } from "../TransportPanel/TransportPanel"
 import { ArrangeTransposeDialog } from "../TransposeDialog/ArrangeTransposeDialog"
-import { PianoRollTransposeDialog } from "../TransposeDialog/PianoRollTransposeDialog"
 
 const Container = styled.div`
   height: 100%;
@@ -61,11 +58,8 @@ export const RootView: FC = () => (
     <HelpDialog />
     <ExportDialog />
     <ExportProgressDialog />
-    <PianoRollTransposeDialog />
     <ArrangeTransposeDialog />
     <Head />
-    <SignInDialog />
-    <CloudFileDialog />
     <SettingDialog />
     <ControlSettingDialog />
     <InitializeErrorDialog />

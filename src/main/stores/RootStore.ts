@@ -9,7 +9,6 @@ import { MIDIRecorder } from "../services/MIDIRecorder"
 import { SoundFontSynth } from "../services/SoundFontSynth"
 import ArrangeViewStore from "./ArrangeViewStore"
 import { AuthStore } from "./AuthStore"
-import { CloudFileStore } from "./CloudFileStore"
 import { ControlStore } from "./ControlStore"
 import { ExportStore } from "./ExportStore"
 import HistoryStore from "./HistoryStore"
@@ -35,7 +34,6 @@ export default class RootStore {
   readonly midiDeviceStore = new MIDIDeviceStore()
   readonly exportStore = new ExportStore()
   readonly authStore = new AuthStore()
-  readonly cloudFileStore = new CloudFileStore(this)
   readonly settingStore = new SettingStore()
   readonly player: Player
   readonly synth: SoundFontSynth

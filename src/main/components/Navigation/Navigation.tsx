@@ -1,20 +1,18 @@
 import styled from "@emotion/styled"
 import Color from "color"
-import Forum from "mdi-react/ForumIcon"
 import Help from "mdi-react/HelpCircleIcon"
-import Settings from "mdi-react/SettingsIcon"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useCallback } from "react"
+import { BrowserRouter, Link } from "react-router-dom"
 import { envString } from "../../../common/localize/envString"
 import { Localized } from "../../../components/Localized"
 import { Tooltip } from "../../../components/Tooltip"
 import { useStores } from "../../hooks/useStores"
+import logo from "../../images/MMUK_Logo2.png"
 import ArrangeIcon from "../../images/icons/arrange.svg"
 import PianoIcon from "../../images/icons/piano.svg"
-import TempoIcon from "../../images/icons/tempo.svg"
-import Logo from "../../images/logo-circle.svg"
 import { FileMenuButton } from "./FileMenuButton"
-import { UserButton } from "./UserButton"
+
 
 const BannerContainer = styled.div`
   background: ${({ theme }) => theme.themeColor};
@@ -30,14 +28,19 @@ const BannerContainer = styled.div`
   }
 `
 
-const LogoIcon = styled(Logo)`
+const LogoIcon = styled(logo)`
   width: 1.5rem;
 `
+
+function LogoMM() {
+  // Import result is the URL of your image
+  return <img src={logo} alt="Logo" style={{ height: "1.7rem" }}/>;
+}
 
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  background: ${({ theme }) => Color(theme.backgroundColor).darken(0.2).hex()};
+  background: ${({ theme }) => Color(theme.themeColor).darken(0.7).hex()};
   height: 3rem;
   flex-shrink: 0;
 `
@@ -93,8 +96,22 @@ export const Navigation: FC = observer(() => {
     router,
   } = useStores()
 
+
   return (
     <Container>
+         <BrowserRouter>
+         <Link to="/">
+        <Tab >
+       
+     
+       
+
+        
+        <LogoMM />
+       
+      </Tab>
+      </Link>
+      </BrowserRouter>
       <FileMenuButton />
 
       <Tooltip
@@ -137,7 +154,7 @@ export const Navigation: FC = observer(() => {
         </Tab>
       </Tooltip>
 
-      <Tooltip
+{/*       <Tooltip
         title={
           <>
             <Localized default="Switch Tab">switch-tab</Localized> [
@@ -155,21 +172,11 @@ export const Navigation: FC = observer(() => {
             <Localized default="Tempo">tempo</Localized>
           </TabTitle>
         </Tab>
-      </Tooltip>
+      </Tooltip> */}
 
       <FlexibleSpacer />
 
-      <Tab
-        onClick={useCallback(
-          () => (rootViewStore.openSettingDialog = true),
-          [],
-        )}
-      >
-        <Settings style={IconStyle} />
-        <TabTitle>
-          <Localized default="Settings">settings</Localized>
-        </TabTitle>
-      </Tab>
+  
 
       <Tab onClick={useCallback(() => (rootViewStore.openHelp = true), [])}>
         <Help style={IconStyle} />
@@ -178,16 +185,16 @@ export const Navigation: FC = observer(() => {
         </TabTitle>
       </Tab>
 
-      <Tab>
+ {/*      <Tab>
         <Forum style={IconStyle} />
         <TabTitle>
           <a href="https://discord.gg/XQxzNdDJse" target="_blank">
             Discord
           </a>
         </TabTitle>
-      </Tab>
+      </Tab> */}
 
-      <UserButton />
+    
     </Container>
   )
 })

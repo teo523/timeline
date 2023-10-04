@@ -1,12 +1,10 @@
-import CloudOutlined from "mdi-react/CloudOutlineIcon"
 import KeyboardArrowDown from "mdi-react/KeyboardArrowDownIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useRef } from "react"
 import { Localized } from "../../../components/Localized"
-import { Menu, MenuDivider, MenuItem } from "../../../components/Menu"
+import { Menu } from "../../../components/Menu"
 import { hasFSAccess } from "../../actions/file"
 import { useStores } from "../../hooks/useStores"
-import { CloudFileMenu } from "./CloudFileMenu"
 import { FileMenu } from "./FileMenu"
 import { LegacyFileMenu } from "./LegacyFileMenu"
 import { Tab } from "./Navigation"
@@ -49,30 +47,10 @@ export const FileMenuButton: FC = observer(() => {
 
       {user === null && !hasFSAccess && <LegacyFileMenu close={handleClose} />}
 
-      {user && <CloudFileMenu close={handleClose} />}
 
-      {user === null && (
-        <>
-          <MenuDivider />
-          <MenuItem
-            onClick={() => {
-              handleClose()
-              rootViewStore.openSignInDialog = true
-            }}
-          >
-            <CloudOutlined style={{ marginRight: "0.5em" }} />
-            <Localized default="Sign up to use Cloud Save">
-              please-sign-up
-            </Localized>
-          </MenuItem>
-        </>
-      )}
+      
 
-      <MenuDivider />
-
-      <MenuItem onClick={onClickExport}>
-        <Localized default="Export Audio">export-audio</Localized>
-      </MenuItem>
+      
     </Menu>
   )
 })

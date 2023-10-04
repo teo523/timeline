@@ -1,7 +1,5 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
-import { auth } from "../../firebase/firebase"
-import { UserButtonContent } from "../../main/components/Navigation/UserButtonContent"
 import { useStores } from "../hooks/useStores"
 
 const Container = styled.div`
@@ -36,13 +34,7 @@ export const Navigation: FC = () => {
         <LogoWrapper href="/">
           <img src="logo-white.svg" style={{ height: "1.7rem" }} />
         </LogoWrapper>
-        <UserButtonContent
-          user={user}
-          onClickSignIn={() => {}}
-          onClickSignOut={async () => {
-            await auth.signOut()
-          }}
-        />
+       
       </Container>
     </NavigationWrapper>
   )

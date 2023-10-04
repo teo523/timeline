@@ -61,6 +61,7 @@ export const PianoRollEditor: FC = observer(() => {
             <PianoRoll />
           </PaneLayout>
         </PaneLayout>
+        
       </div>
     </ColumnContainer>
   )

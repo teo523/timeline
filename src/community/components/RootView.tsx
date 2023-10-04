@@ -2,7 +2,6 @@ import styled from "@emotion/styled"
 import { FC } from "react"
 import { BottomPlayer } from "./BottomPlayer"
 import { Navigation } from "./Navigation"
-import { SongList } from "./SongList"
 
 const Container = styled.div`
   display: flex;
@@ -36,7 +35,7 @@ export const RootView: FC = () => {
       <Content>
         <Inner>
           <Title>Community Tracks</Title>
-          <SongList />
+         
         </Inner>
       </Content>
       <BottomPlayer />
