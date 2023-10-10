@@ -106,7 +106,7 @@ const PianoRollWrapper: FC = observer(() => {
     <Parent ref={ref}>
       <StyledSplitPane split="horizontal" minSize={50} defaultSize={"60%"}>
         <Alpha onWheel={onWheel} ref={alphaRef}>
-          <PianoRollStage width={size.width} height={alphaHeight} />
+          <PianoRollStage width={size.width } height={alphaHeight} />
           <VerticalScaleScrollBar
             scrollOffset={scrollTop}
             contentLength={contentHeight}

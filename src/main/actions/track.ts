@@ -1,9 +1,9 @@
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
 import { closedRange } from "../../common/helpers/array"
 import {
+  ValueEventType,
   createValueEvent,
   isValueEvent,
-  ValueEventType,
 } from "../../common/helpers/valueEvent"
 import {
   panMidiEvent,
@@ -14,10 +14,10 @@ import {
 import Quantizer from "../../common/quantizer"
 import { getMeasureStart } from "../../common/song/selector"
 import Track, {
-  isNoteEvent,
   NoteEvent,
   TrackEvent,
   TrackEventOf,
+  isNoteEvent,
 } from "../../common/track"
 import RootStore from "../stores/RootStore"
 import { pushHistory } from "./history"
@@ -67,6 +67,7 @@ export const createEvent =
       throw new Error("selected track is undefined")
     }
     pushHistory()
+    console.log(selectedTrack);
     const id = selectedTrack.createOrUpdate({
       ...e,
       tick: quantizer.round(tick ?? player.position),
