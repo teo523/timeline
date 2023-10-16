@@ -1,10 +1,12 @@
+// Creates the context Menu window for the ruler in pianoroll
+
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
 import { envString } from "../../../common/localize/envString"
 import {
   ContextMenu,
-  ContextMenuHotKey as HotKey,
   ContextMenuProps,
+  ContextMenuHotKey as HotKey,
 } from "../../../components/ContextMenu"
 import { Localized } from "../../../components/Localized"
 import { MenuItem } from "../../../components/Menu"
@@ -44,6 +46,7 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
     const onClickSetLoopStart = useCallback(() => {
       setLoopBegin(rootStore)(tick)
       handleClose()
+      
     }, [tick])
 
     const onClickSetLoopEnd = useCallback(() => {
@@ -59,11 +62,11 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
       <>
         <ContextMenu {...props}>
           <MenuItem onClick={onClickSetLoopStart}>
-            <Localized default="Set Loop Start">set-loop-start</Localized>
+            <Localized default="Set Vamp Start">set-loop-start</Localized>
             <HotKey>{envString.cmdOrCtrl}+Click</HotKey>
           </MenuItem>
           <MenuItem onClick={onClickSetLoopEnd}>
-            <Localized default="Set Loop End">set-loop-end</Localized>
+            <Localized default="Set Vamp End">set-loop-end</Localized>
             <HotKey>Alt+Click</HotKey>
           </MenuItem>
           <MenuItem onClick={onClickAddTimeSignature}>

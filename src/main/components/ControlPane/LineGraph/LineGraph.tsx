@@ -1,3 +1,5 @@
+//Creates the component for CC editing pane. It passes the pencil or selection events to handle the clicks
+
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"

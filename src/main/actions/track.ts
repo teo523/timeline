@@ -67,7 +67,7 @@ export const createEvent =
       throw new Error("selected track is undefined")
     }
     pushHistory()
-    console.log(selectedTrack);
+    
     const id = selectedTrack.createOrUpdate({
       ...e,
       tick: quantizer.round(tick ?? player.position),

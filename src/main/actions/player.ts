@@ -136,6 +136,8 @@ export const setLoopBegin =
       enabled: player.loop?.enabled ?? false,
       begin: tick,
     }
+    // const event2 = createCCEvent(type)(pos.value)
+    // createTrackEvent(rootStore)(event2, pos.tick )  
   }
 
 export const setLoopEnd =
@@ -146,6 +148,7 @@ export const setLoopEnd =
       enabled: player.loop?.enabled ?? false,
       end: tick,
     }
+   
   }
 
 export const toggleEnableLoop =

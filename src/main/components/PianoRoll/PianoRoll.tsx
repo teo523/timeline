@@ -6,7 +6,6 @@ import { FC, useCallback, useRef } from "react"
 import { Layout, WHEEL_SCROLL_RATE } from "../../Constants"
 import { isTouchPadEvent } from "../../helpers/touchpad"
 import { useStores } from "../../hooks/useStores"
-import ControlPane from "../ControlPane/ControlPane"
 import {
   HorizontalScaleScrollBar,
   VerticalScaleScrollBar,
@@ -23,6 +22,10 @@ const Parent = styled.div`
 const Alpha = styled.div`
   flex-grow: 1;
   position: relative;
+  overflow: hidden !important;
+
+
+  
 
   .alphaContent {
     position: absolute;
@@ -32,8 +35,12 @@ const Alpha = styled.div`
 `
 
 const Beta = styled.div`
-  border-top: 1px solid ${({ theme }) => theme.dividerColor};
+flex-grow: 1;
+  position: relative;  
+border-top: 1px solid ${({ theme }) => theme.dividerColor};
   height: calc(100% - 17px);
+  overflow: hidden !important;
+
 `
 
 const PianoRollWrapper: FC = observer(() => {
@@ -104,9 +111,9 @@ const PianoRollWrapper: FC = observer(() => {
 
   return (
     <Parent ref={ref}>
-      <StyledSplitPane split="horizontal" minSize={50} defaultSize={"60%"}>
+      <StyledSplitPane split="horizontal" minSize={50} defaultSize={"50%"}>
         <Alpha onWheel={onWheel} ref={alphaRef}>
-          <PianoRollStage width={size.width } height={alphaHeight} />
+          <PianoRollStage width={size.width } height={alphaHeight} showRuler={true}/>
           <VerticalScaleScrollBar
             scrollOffset={scrollTop}
             contentLength={contentHeight}
@@ -115,9 +122,19 @@ const PianoRollWrapper: FC = observer(() => {
             onClickScaleDown={onClickScaleDownVertical}
             onClickScaleReset={onClickScaleResetVertical}
           />
+          
         </Alpha>
-        <Beta>
-          <ControlPane />
+        
+        <Beta >
+        <PianoRollStage width={size.width } height={alphaHeight} showRuler={false}/>
+          <VerticalScaleScrollBar
+            scrollOffset={scrollTop}
+            contentLength={contentHeight }
+            onScroll={useCallback((v: any) => s.setScrollTopInPixels(v), [s])}
+            onClickScaleUp={onClickScaleUpVertical}
+            onClickScaleDown={onClickScaleDownVertical}
+            onClickScaleReset={onClickScaleResetVertical}
+          />
         </Beta>
       </StyledSplitPane>
       <HorizontalScaleScrollBar

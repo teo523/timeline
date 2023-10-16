@@ -22,7 +22,7 @@ import { Lines } from "./Lines"
 import { Notes } from "./Notes"
 
 export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
-  ({ width, height }) => {
+  ({ width, height, showRuler }) => {
     const rootStore = useStores()
     const {
       pianoRollStore,
@@ -83,7 +83,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
           onMouseUp={mouseHandler.onMouseUp}
         >
           <Transform matrix={scrollYMatrix}>
-            <Lines zIndex={0} />
+            <Lines zIndex={0} pianoTheme={showRuler} />
           </Transform>
           <Transform matrix={scrollXMatrix}>
             <Beats height={height} beats={beats} zIndex={1} />

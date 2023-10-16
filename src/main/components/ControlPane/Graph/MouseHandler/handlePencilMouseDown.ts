@@ -1,7 +1,6 @@
 //Creates MIDI CC events when pencil mouse down
 
 import { IPoint, pointAdd, pointSub } from "../../../../../common/geometry"
-import { createCCEvent } from "../../../../../common/helpers/ccEvent"
 import {
   ValueEventType,
   createValueEvent,
@@ -42,8 +41,8 @@ export const handlePencilMouseDown =
     createTrackEvent(rootStore)(event, pos.tick)
 
     //Im adding here an extra CC event, CC84, just for debugging purposes
-    const event2 = createCCEvent(type)(pos.value)
-    createTrackEvent(rootStore)(event2, pos.tick )
+    /* const event2 = createCCEvent(type)(pos.value)
+    createTrackEvent(rootStore)(event2, pos.tick ) */
 
 
     let lastTick = pos.tick

@@ -4,8 +4,8 @@ import React, { FC, MouseEventHandler, useCallback, useState } from "react"
 import { BeatWithX } from "../../../common/helpers/mapBeats"
 import { LoopSetting } from "../../../common/player"
 import { Theme } from "../../../common/theme/Theme"
-import { setLoopBegin, setLoopEnd, updateTimeSignature } from "../../actions"
 import { Layout } from "../../Constants"
+import { setLoopBegin, setLoopEnd, updateTimeSignature } from "../../actions"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
@@ -73,6 +73,7 @@ function drawLoopPoints(
   const beginX = loop.begin * pixelsPerTick
   const endX = loop.end * pixelsPerTick
 
+  //Draw loop begin marker 
   if (loop.begin !== null) {
     const x = beginX
     ctx.moveTo(x, 0)
@@ -81,8 +82,22 @@ function drawLoopPoints(
     ctx.moveTo(x, 0)
     ctx.lineTo(x + flagSize, 0)
     ctx.lineTo(x, flagSize)
+
+      //Add colour to ruler
+/*     if (loop.end !== null) {
+      ctx.fillStyle = theme.themeColor
+      ctx.strokeStyle = theme.secondaryTextColor
+      const x2 = endX
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x2, 0)
+      ctx.lineTo(x2, height)
+      ctx.lineTo(x, height)
+      ctx.lineTo(x, 0)
+
+    } */
   }
 
+  //Draw loop end marker 
   if (loop.end !== null) {
     const x = endX
     ctx.moveTo(x, 0)
