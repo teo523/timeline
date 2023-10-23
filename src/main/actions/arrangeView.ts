@@ -253,7 +253,6 @@ export const arrangeDeleteSelection =
   () => {
     pushHistory()
 
-    // 選択範囲と選択されたノートを削除
     // Remove selected notes and selected notes
     for (const trackId in s.selectedEventIds) {
       tracks[trackId].removeEvents(s.selectedEventIds[trackId])

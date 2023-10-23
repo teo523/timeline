@@ -1,7 +1,7 @@
 import { songFromMidi, songToMidi } from "../../common/midi/midiConversion"
 import { writeFile } from "../services/fs-helper"
 import RootStore from "../stores/RootStore"
-import { setSong } from "./song"
+import { setSong, setSong2 } from "./song"
 
 // URL parameter for automation purposes used in scripts/perf/index.js
 // /edit?disableFileSystem=true
@@ -36,8 +36,38 @@ export const openFile = async (rootStore: RootStore) => {
   }
   const file = await fileHandle.getFile()
   const song = await songFromFile(file)
+  const song2 = await songFromFile(file)
   song.fileHandle = fileHandle
+  song2.fileHandle = fileHandle
   setSong(rootStore)(song)
+}
+
+export const openFile2 = async (rootStore: RootStore) => {
+  let fileHandle: FileSystemFileHandle
+  try {
+    fileHandle = (
+      await window.showOpenFilePicker({
+        types: [
+          {
+            description: "MIDI file",
+            accept: { "audio/midi": [".mid"] },
+          },
+        ],
+      })
+    )[0]
+  } catch (ex) {
+    if ((ex as Error).name === "AbortError") {
+      return
+    }
+    const msg = "An error occured trying to open the file."
+    console.error(msg, ex)
+    alert(msg)
+    return
+  }
+  const file = await fileHandle.getFile()
+  const song2 = await songFromFile(file)
+  song2.fileHandle = fileHandle
+  setSong2(rootStore)(song2)
 }
 
 export const songFromFile = async (file: File) => {

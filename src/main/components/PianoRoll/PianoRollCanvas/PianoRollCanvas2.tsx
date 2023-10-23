@@ -19,14 +19,14 @@ import { PianoRollStageProps } from "../PianoRollStage"
 import { PianoSelectionContextMenu } from "../PianoSelectionContextMenu"
 import { GhostNotes } from "./GhostNotes"
 import { Lines } from "./Lines"
-import { Notes } from "./Notes"
+import { Notes2 } from "./Notes2"
 
-export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
+export const PianoRollCanvas2: FC<PianoRollStageProps> = observer(
   ({ width, height, showRuler }) => {
     const rootStore = useStores()
     const {
-      pianoRollStore,
-      pianoRollStore: {
+      pianoRollStore2,
+      pianoRollStore2: {
         notesCursor,
         scrollLeft,
         scrollTop,
@@ -41,7 +41,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
     const { onContextMenu, menuProps } = useContextMenu()
 
     const handleContextMenu: MouseEventHandler = useCallback((e) => {
-      if (pianoRollStore.mouseMode === "selection") {
+      if (pianoRollStore2.mouseMode === "selection") {
         e.stopPropagation()
         onContextMenu(e)
         return
@@ -49,11 +49,11 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
     }, [])
 
     useEffect(() => {
-      pianoRollStore.canvasWidth = width
+      pianoRollStore2.canvasWidth = width
     }, [width])
 
     useEffect(() => {
-      pianoRollStore.canvasHeight = height
+      pianoRollStore2.canvasHeight = height
     }, [height])
 
     const scrollXMatrix = useMemo(
@@ -91,7 +91,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
           </Transform>
           <Transform matrix={scrollXYMatrix}>
             <GhostNotes zIndex={2} />
-            <Notes zIndex={3} />
+            <Notes2 zIndex={3} />
 
             <Selection rect={selectionBounds} zIndex={4} />
           </Transform>

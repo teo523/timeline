@@ -24,9 +24,6 @@ const Alpha = styled.div`
   position: relative;
   overflow: hidden !important;
 
-
-  
-
   .alphaContent {
     position: absolute;
     top: 0;
@@ -35,27 +32,16 @@ const Alpha = styled.div`
 `
 
 const Beta = styled.div`
-flex-grow: 1;
-  position: relative;  
-border-top: 1px solid ${({ theme }) => theme.dividerColor};
+  flex-grow: 1;
+  position: relative;
+  border-top: 1px solid ${({ theme }) => theme.dividerColor};
   height: calc(100% - 17px);
   overflow: hidden !important;
-
 `
 
 const PianoRollWrapper: FC = observer(() => {
-  const {
-    pianoRollStore: s,
-    pianoRollStore: {
-      scaleX,
-      scaleY,
-      scrollLeft,
-      scrollTop,
-      transform,
-      contentWidth,
-      contentHeight,
-    },
-  } = useStores()
+  const { pianoRollStore: s } = useStores()
+  const { pianoRollStore2: s2 } = useStores()
 
   const ref = useRef(null)
   const size = useComponentSize(ref)
@@ -65,21 +51,21 @@ const PianoRollWrapper: FC = observer(() => {
 
   const onClickScaleUpHorizontal = useCallback(
     () => s.scaleAroundPointX(0.2, Layout.keyWidth),
-    [scaleX, s],
+    [s.scaleX, s],
   )
   const onClickScaleDownHorizontal = useCallback(
     () => s.scaleAroundPointX(-0.2, Layout.keyWidth),
-    [scaleX, s],
+    [s.scaleX, s],
   )
   const onClickScaleResetHorizontal = useCallback(() => (s.scaleX = 1), [s])
 
   const onClickScaleUpVertical = useCallback(
     () => s.scaleAroundPointY(0.2, 0),
-    [scaleY, s],
+    [s.scaleY, s],
   )
   const onClickScaleDownVertical = useCallback(
     () => s.scaleAroundPointY(-0.2, 0),
-    [scaleY, s],
+    [s.scaleY, s],
   )
   const onClickScaleResetVertical = useCallback(() => (s.scaleY = 1), [s])
 
@@ -92,45 +78,55 @@ const PianoRollWrapper: FC = observer(() => {
           : 0.01 * e.deltaX
         scaleYDelta = clamp(scaleYDelta, -0.15, 0.15) // prevent acceleration to zoom too fast
         s.scaleAroundPointY(scaleYDelta, e.nativeEvent.offsetY)
+        s2.scaleAroundPointY(scaleYDelta, e.nativeEvent.offsetY)
       } else if (e.altKey || e.ctrlKey) {
         // horizontal zoom
         const scaleFactor = isTouchPadEvent(e.nativeEvent) ? 0.01 : -0.01
         const scaleXDelta = clamp(e.deltaY * scaleFactor, -0.15, 0.15) // prevent acceleration to zoom too fast
         s.scaleAroundPointX(scaleXDelta, e.nativeEvent.offsetX)
+        s2.scaleAroundPointX(scaleXDelta, e.nativeEvent.offsetX)
       } else {
         // scrolling
         const scaleFactor = isTouchPadEvent(e.nativeEvent)
           ? 1
-          : transform.pixelsPerKey * WHEEL_SCROLL_RATE
+          : s.transform.pixelsPerKey * WHEEL_SCROLL_RATE
         const deltaY = e.deltaY * scaleFactor
         s.scrollBy(-e.deltaX, -deltaY)
+        s2.scrollBy(-e.deltaX, -deltaY)
       }
     },
-    [s, transform],
+    [s, s.transform, s2, s2.transform],
   )
 
   return (
     <Parent ref={ref}>
       <StyledSplitPane split="horizontal" minSize={50} defaultSize={"50%"}>
         <Alpha onWheel={onWheel} ref={alphaRef}>
-          <PianoRollStage width={size.width } height={alphaHeight} showRuler={true}/>
+          <PianoRollStage
+            width={size.width}
+            height={alphaHeight}
+            showRuler={true}
+          />
           <VerticalScaleScrollBar
-            scrollOffset={scrollTop}
-            contentLength={contentHeight}
+            scrollOffset={s.scrollTop}
+            contentLength={s.contentHeight}
             onScroll={useCallback((v: any) => s.setScrollTopInPixels(v), [s])}
             onClickScaleUp={onClickScaleUpVertical}
             onClickScaleDown={onClickScaleDownVertical}
             onClickScaleReset={onClickScaleResetVertical}
           />
-          
         </Alpha>
-        
-        <Beta >
-        <PianoRollStage width={size.width } height={alphaHeight} showRuler={false}/>
+
+        <Beta onWheel={onWheel}>
+          <PianoRollStage
+            width={size.width}
+            height={alphaHeight}
+            showRuler={false}
+          />
           <VerticalScaleScrollBar
-            scrollOffset={scrollTop}
-            contentLength={contentHeight }
-            onScroll={useCallback((v: any) => s.setScrollTopInPixels(v), [s])}
+            scrollOffset={s2.scrollTop}
+            contentLength={s2.contentHeight}
+            onScroll={useCallback((v: any) => s2.setScrollTopInPixels(v), [s])}
             onClickScaleUp={onClickScaleUpVertical}
             onClickScaleDown={onClickScaleDownVertical}
             onClickScaleReset={onClickScaleResetVertical}
@@ -138,8 +134,8 @@ const PianoRollWrapper: FC = observer(() => {
         </Beta>
       </StyledSplitPane>
       <HorizontalScaleScrollBar
-        scrollOffset={scrollLeft}
-        contentLength={contentWidth}
+        scrollOffset={s.scrollLeft}
+        contentLength={s.contentWidth}
         onScroll={useCallback((v: any) => s.setScrollLeftInPixels(v), [s])}
         onClickScaleUp={onClickScaleUpHorizontal}
         onClickScaleDown={onClickScaleDownHorizontal}

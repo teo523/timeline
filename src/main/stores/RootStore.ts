@@ -8,12 +8,14 @@ import { MIDIInput, previewMidiInput } from "../services/MIDIInput"
 import { MIDIRecorder } from "../services/MIDIRecorder"
 import { SoundFontSynth } from "../services/SoundFontSynth"
 import ArrangeViewStore from "./ArrangeViewStore"
+import ArrangeViewStore2 from "./ArrangeViewStore2"
 import { AuthStore } from "./AuthStore"
 import { ControlStore } from "./ControlStore"
 import { ExportStore } from "./ExportStore"
 import HistoryStore from "./HistoryStore"
 import { MIDIDeviceStore } from "./MIDIDeviceStore"
 import PianoRollStore from "./PianoRollStore"
+import PianoRollStore2 from "./PianoRollStore2"
 import RootViewStore from "./RootViewStore"
 import Router from "./Router"
 import SettingStore from "./SettingStore"
@@ -23,13 +25,16 @@ import { registerReactions } from "./reactions"
 
 export default class RootStore {
   song: Song = emptySong()
+  song2: Song = emptySong()
   readonly router = new Router()
   readonly trackMute = new TrackMute()
   readonly historyStore = new HistoryStore<SerializedState>()
   readonly rootViewStore = new RootViewStore()
   readonly pianoRollStore: PianoRollStore
+  readonly pianoRollStore2: PianoRollStore2
   readonly controlStore: ControlStore
   readonly arrangeViewStore = new ArrangeViewStore(this)
+  readonly arrangeViewStore2 = new ArrangeViewStore2(this)
   readonly tempoEditorStore = new TempoEditorStore(this)
   readonly midiDeviceStore = new MIDIDeviceStore()
   readonly exportStore = new ExportStore()
@@ -46,6 +51,7 @@ export default class RootStore {
   constructor() {
     makeObservable(this, {
       song: observable.ref,
+      song2: observable.ref,
     })
 
     const context = new (window.AudioContext || window.webkitAudioContext)()
@@ -62,6 +68,7 @@ export default class RootStore {
     this.midiRecorder = new MIDIRecorder(this.player, this)
 
     this.pianoRollStore = new PianoRollStore(this)
+    this.pianoRollStore2 = new PianoRollStore2(this)
     this.controlStore = new ControlStore(this.pianoRollStore)
     this.soundFontStore = new SoundFontStore(this.synth)
 
@@ -73,7 +80,9 @@ export default class RootStore {
     }
 
     this.pianoRollStore.setUpAutorun()
+    this.pianoRollStore.setUpAutorun()
     this.arrangeViewStore.setUpAutorun()
+    this.arrangeViewStore2.setUpAutorun()
     this.tempoEditorStore.setUpAutorun()
 
     registerReactions(this)

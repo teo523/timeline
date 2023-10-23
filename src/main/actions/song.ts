@@ -19,11 +19,12 @@ export const setSong = (rootStore: RootStore) => (song: Song) => {
   const { trackMute, pianoRollStore, player, historyStore, arrangeViewStore } =
     rootStore
   rootStore.song = song
+  console.log("setSong")
+  console.log(song)
   trackMute.reset()
 
   pianoRollStore.setScrollLeftInPixels(0)
   pianoRollStore.notGhostTracks = new Set()
-  pianoRollStore.showTrackList = true
   pianoRollStore.selection = null
   pianoRollStore.selectedNoteIds = []
   pianoRollStore.selectedTrackId = Math.min(song.tracks.length - 1, 1)
@@ -38,9 +39,34 @@ export const setSong = (rootStore: RootStore) => (song: Song) => {
   player.position = 0
 }
 
+export const setSong2 = (rootStore: RootStore) => (song2: Song) => {
+  const { trackMute, pianoRollStore, player, historyStore, arrangeViewStore } =
+    rootStore
+  rootStore.song2 = song2
+  console.log("setSong2")
+  console.log(song2)
+  trackMute.reset()
+
+  pianoRollStore.setScrollLeftInPixels(0)
+  pianoRollStore.notGhostTracks = new Set()
+  pianoRollStore.selection = null
+  pianoRollStore.selectedNoteIds = []
+  pianoRollStore.selectedTrackId = Math.min(song2.tracks.length - 1, 1)
+
+  arrangeViewStore.selection = null
+  arrangeViewStore.selectedEventIds = []
+
+  historyStore.clear()
+
+  player.stop()
+  player.reset()
+  player.position = 0
+}
+
 export const createSong = (rootStore: RootStore) => () => {
   const store = rootStore
   setSong(store)(emptySong())
+  setSong2(store)(emptySong())
 }
 
 export const saveSong = (rootStore: RootStore) => () => {
@@ -55,7 +81,17 @@ export const openSong =
     if (song === null) {
       return
     }
+
     setSong(rootStore)(song)
+  }
+
+export const openSong2 =
+  (rootStore: RootStore) => async (input: HTMLInputElement) => {
+    const song2 = await openSongFile(input)
+    if (song2 === null) {
+      return
+    }
+    setSong2(rootStore)(song2)
   }
 
 export const addTrack =
