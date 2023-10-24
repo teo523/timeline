@@ -73,7 +73,7 @@ function drawLoopPoints(
   const beginX = loop.begin * pixelsPerTick
   const endX = loop.end * pixelsPerTick
 
-  //Draw loop begin marker 
+  //Draw loop begin marker
   if (loop.begin !== null) {
     const x = beginX
     ctx.moveTo(x, 0)
@@ -83,8 +83,8 @@ function drawLoopPoints(
     ctx.lineTo(x + flagSize, 0)
     ctx.lineTo(x, flagSize)
 
-      //Add colour to ruler
-/*     if (loop.end !== null) {
+    //Add colour to ruler
+    /*     if (loop.end !== null) {
       ctx.fillStyle = theme.themeColor
       ctx.strokeStyle = theme.secondaryTextColor
       const x2 = endX
@@ -97,7 +97,7 @@ function drawLoopPoints(
     } */
   }
 
-  //Draw loop end marker 
+  //Draw loop end marker
   if (loop.end !== null) {
     const x = endX
     ctx.moveTo(x, 0)
@@ -106,6 +106,68 @@ function drawLoopPoints(
     ctx.moveTo(x, 0)
     ctx.lineTo(x - flagSize, 0)
     ctx.lineTo(x, flagSize)
+  }
+
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+}
+
+function drawVampSections(
+  ctx: CanvasRenderingContext2D,
+  pixelsPerTick: number,
+  height: number,
+  theme: Theme,
+  start: number[],
+  end: number[],
+) {
+  const flagSize = 8
+  ctx.lineWidth = 1
+  ctx.fillStyle = theme.themeColor
+  ctx.strokeStyle = theme.secondaryTextColor
+  ctx.beginPath()
+
+  //Draw Vamp Flags
+  if (start.length > 0) {
+    start.forEach((startPoint, index) => {
+      const x1 = startPoint * pixelsPerTick
+      ctx.moveTo(x1, 0)
+      ctx.lineTo(x1, height)
+
+      ctx.moveTo(x1, 0)
+      ctx.lineTo(x1 + flagSize, 0)
+      ctx.lineTo(x1, flagSize)
+    })
+  }
+
+  if (end.length > 0) {
+    end.forEach((endPoint, index) => {
+      const x2 = endPoint * pixelsPerTick
+      ctx.moveTo(x2, 0)
+      ctx.lineTo(x2, height)
+      ctx.moveTo(x2, 0)
+      ctx.lineTo(x2 - flagSize, 0)
+      ctx.lineTo(x2, flagSize)
+    })
+  }
+
+  ctx.fill()
+
+  //Draw vamp sections
+
+  if (start.length > 0) {
+    ctx.fillStyle = "#AA00FF22"
+    start.forEach((startPoint, index) => {
+      if (end.length - 1 >= index) {
+        const x1 = startPoint * pixelsPerTick
+        const x2 = end[index] * pixelsPerTick
+        ctx.moveTo(x1, 0)
+        ctx.lineTo(x2, 0)
+        ctx.lineTo(x2, height)
+        ctx.lineTo(x1, height)
+        ctx.lineTo(x1, 0)
+      }
+    })
   }
 
   ctx.closePath()
@@ -185,6 +247,7 @@ const PianoRuler: FC<PianoRulerProps> = observer(({ rulerStore, style }) => {
   const [rightClickTick, setRightClickTick] = useState(0)
   const height = Layout.rulerHeight
 
+  const { vampStarts, vampEnds } = rootStore
   const {
     canvasWidth: width,
     transform: { pixelsPerTick },
@@ -239,10 +302,20 @@ const PianoRuler: FC<PianoRulerProps> = observer(({ rulerStore, style }) => {
       if (loop !== null) {
         drawLoopPoints(ctx, loop, height, pixelsPerTick, theme)
       }
+      drawVampSections(ctx, pixelsPerTick, height, theme, vampStarts, vampEnds)
       drawTimeSignatures(ctx, height, timeSignatures, pixelsPerTick, theme)
       ctx.restore()
     },
-    [width, pixelsPerTick, scrollLeft, beats, timeSignatures, loop],
+    [
+      width,
+      pixelsPerTick,
+      scrollLeft,
+      beats,
+      timeSignatures,
+      loop,
+      vampStarts,
+      vampEnds,
+    ],
   )
 
   const closeOpenTimeSignatureDialog = useCallback(() => {

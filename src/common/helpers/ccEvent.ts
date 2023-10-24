@@ -1,6 +1,6 @@
 // abstraction layer for pitch-bend and controller events
 
-import { controllerMidiEvent, pitchBendMidiEvent } from "../midi/MidiEvent";
+import { controllerMidiEvent, pitchBendMidiEvent } from "../midi/MidiEvent"
 
 export type ccEventType =
   | { type: "pitchBend" }
@@ -11,8 +11,6 @@ export const createCCEvent = (t: ccEventType) => (value: number) => {
     case "pitchBend":
       return pitchBendMidiEvent(0, 0, Math.round(value))
     case "controller":
-      return controllerMidiEvent(0, 0, 84, Math.round(value))
+      return controllerMidiEvent(1, 0, 84, Math.round(value))
   }
 }
-
-

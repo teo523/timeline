@@ -26,6 +26,8 @@ import { registerReactions } from "./reactions"
 export default class RootStore {
   song: Song = emptySong()
   song2: Song = emptySong()
+  vampStarts: number[] = []
+  vampEnds: number[] = []
   readonly router = new Router()
   readonly trackMute = new TrackMute()
   readonly historyStore = new HistoryStore<SerializedState>()
@@ -52,6 +54,8 @@ export default class RootStore {
     makeObservable(this, {
       song: observable.ref,
       song2: observable.ref,
+      vampStarts: observable.ref,
+      vampEnds: observable.ref,
     })
 
     const context = new (window.AudioContext || window.webkitAudioContext)()

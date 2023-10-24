@@ -1,4 +1,6 @@
+import { controllerMidiEvent } from "../../common/midi/MidiEvent"
 import RootStore from "../stores/RootStore"
+import { createEvent as createTrackEvent } from "./"
 
 export const playOrPause =
   ({ player }: RootStore) =>
@@ -136,8 +138,6 @@ export const setLoopBegin =
       enabled: player.loop?.enabled ?? false,
       begin: tick,
     }
-    // const event2 = createCCEvent(type)(pos.value)
-    // createTrackEvent(rootStore)(event2, pos.tick )  
   }
 
 export const setLoopEnd =
@@ -148,7 +148,6 @@ export const setLoopEnd =
       enabled: player.loop?.enabled ?? false,
       end: tick,
     }
-   
   }
 
 export const toggleEnableLoop =
@@ -159,3 +158,23 @@ export const toggleEnableLoop =
     }
     player.loop = { ...player.loop, enabled: !player.loop.enabled }
   }
+
+//Create Vamp Start
+export const setVampStart = (rootStore: RootStore) => (tick: number) => {
+  rootStore.vampStarts.push(tick)
+  //console.log(rootStore.vampStarts)
+
+  //Vamp start message is assigned to midi message CC84
+  const ccEvent = controllerMidiEvent(0, 0, 84, Math.round(tick))
+  console.log(ccEvent)
+  createTrackEvent(rootStore)(ccEvent, tick)
+}
+
+export const setVampEnd = (rootStore: RootStore) => (tick: number) => {
+  rootStore.vampEnds.push(tick)
+
+  //Vamp end message is assigned to midi message CC85
+  const ccEvent = controllerMidiEvent(0, 0, 85, Math.round(tick))
+  console.log(ccEvent)
+  createTrackEvent(rootStore)(ccEvent, tick)
+}

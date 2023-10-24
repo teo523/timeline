@@ -10,7 +10,13 @@ import {
 } from "../../../components/ContextMenu"
 import { Localized } from "../../../components/Localized"
 import { MenuItem } from "../../../components/Menu"
-import { addTimeSignature, setLoopBegin, setLoopEnd } from "../../actions"
+import {
+  addTimeSignature,
+  setLoopBegin,
+  setLoopEnd,
+  setVampEnd,
+  setVampStart,
+} from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { RulerStore } from "../../stores/RulerStore"
 import { TimeSignatureDialog } from "./TimeSignatureDialog"
@@ -43,10 +49,19 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
       handleClose()
     }, [song])
 
+    const onClickSetVampStart = useCallback(() => {
+      setVampStart(rootStore)(tick)
+      handleClose()
+    }, [tick])
+
+    const onClickSetVampEnd = useCallback(() => {
+      setVampEnd(rootStore)(tick)
+      handleClose()
+    }, [tick])
+
     const onClickSetLoopStart = useCallback(() => {
       setLoopBegin(rootStore)(tick)
       handleClose()
-      
     }, [tick])
 
     const onClickSetLoopEnd = useCallback(() => {
@@ -74,6 +89,14 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
               add-time-signature
             </Localized>
           </MenuItem>
+          <MenuItem onClick={onClickSetVampStart}>
+            <Localized default="Add Vamp Start">add-vamp-start</Localized>
+          </MenuItem>
+
+          <MenuItem onClick={onClickSetVampEnd}>
+            <Localized default="Add Vamp End">add-vamp-end</Localized>
+          </MenuItem>
+
           <MenuItem
             onClick={onClickRemoveTimeSignature}
             disabled={!isTimeSignatureSelected}
