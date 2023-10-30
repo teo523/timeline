@@ -2,14 +2,9 @@
 
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
-import { envString } from "../../../common/localize/envString"
-import {
-  ContextMenu,
-  ContextMenuProps,
-  ContextMenuHotKey as HotKey,
-} from "../../../components/ContextMenu"
+import { ContextMenu, ContextMenuProps } from "../../../components/ContextMenu"
 import { Localized } from "../../../components/Localized"
-import { MenuItem } from "../../../components/Menu"
+import { MenuDivider, MenuItem } from "../../../components/Menu"
 import {
   addTimeSignature,
   setLoopBegin,
@@ -76,25 +71,29 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
     return (
       <>
         <ContextMenu {...props}>
-          <MenuItem onClick={onClickSetLoopStart}>
+          {/* <MenuItem onClick={onClickSetLoopStart}>
             <Localized default="Set Vamp Start">set-loop-start</Localized>
             <HotKey>{envString.cmdOrCtrl}+Click</HotKey>
           </MenuItem>
           <MenuItem onClick={onClickSetLoopEnd}>
             <Localized default="Set Vamp End">set-loop-end</Localized>
             <HotKey>Alt+Click</HotKey>
-          </MenuItem>
-          <MenuItem onClick={onClickAddTimeSignature}>
-            <Localized default="Add Time Signature">
-              add-time-signature
-            </Localized>
-          </MenuItem>
+          </MenuItem> */}
+
           <MenuItem onClick={onClickSetVampStart}>
             <Localized default="Add Vamp Start">add-vamp-start</Localized>
           </MenuItem>
 
           <MenuItem onClick={onClickSetVampEnd}>
             <Localized default="Add Vamp End">add-vamp-end</Localized>
+          </MenuItem>
+
+          <MenuDivider />
+
+          <MenuItem onClick={onClickAddTimeSignature}>
+            <Localized default="Add Time Signature">
+              add-time-signature
+            </Localized>
           </MenuItem>
 
           <MenuItem
