@@ -5,13 +5,7 @@ import React, { FC, useCallback, useState } from "react"
 import { ContextMenu, ContextMenuProps } from "../../../components/ContextMenu"
 import { Localized } from "../../../components/Localized"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
-import {
-  addTimeSignature,
-  setLoopBegin,
-  setLoopEnd,
-  setVampEnd,
-  setVampStart,
-} from "../../actions"
+import { addTimeSignature, setVampEnd, setVampStart } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { RulerStore } from "../../stores/RulerStore"
 import { TimeSignatureDialog } from "./TimeSignatureDialog"
@@ -28,6 +22,11 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
     const { song, player } = rootStore
     const [isOpenTimeSignatureDialog, setOpenTimeSignatureDialog] =
       useState(false)
+
+    const ticks = tick
+
+    const startV = rootStore.vampStarts
+    const endV = rootStore.vampEnds
 
     const isTimeSignatureSelected =
       rulerStore.selectedTimeSignatureEventIds.length > 0
@@ -54,15 +53,15 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
       handleClose()
     }, [tick])
 
-    const onClickSetLoopStart = useCallback(() => {
-      setLoopBegin(rootStore)(tick)
-      handleClose()
-    }, [tick])
+    // const onClickSetLoopStart = useCallback(() => {
+    //   setLoopBegin(rootStore)(tick)
+    //   handleClose()
+    // }, [tick])
 
-    const onClickSetLoopEnd = useCallback(() => {
-      setLoopEnd(rootStore)(tick)
-      handleClose()
-    }, [tick])
+    // const onClickSetLoopEnd = useCallback(() => {
+    //   setLoopEnd(rootStore)(tick)
+    //   handleClose()
+    // }, [tick])
 
     const closeOpenTimeSignatureDialog = useCallback(() => {
       setOpenTimeSignatureDialog(false)
@@ -89,6 +88,19 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
           </MenuItem>
 
           <MenuDivider />
+
+          {/* <MenuItem
+            onClick={onClickSetVampStart}
+            disabled={isVamp}
+          >
+            <Localized default="Vamp: Skip">vamp-skip</Localized>
+          </MenuItem>
+
+          <MenuItem onClick={onClickSetVampStart} disabled={isVamp}>
+            <Localized default="Vamp: Repeat">vamp-repeat</Localized>
+          </MenuItem>
+
+          <MenuDivider /> */}
 
           <MenuItem onClick={onClickAddTimeSignature}>
             <Localized default="Add Time Signature">

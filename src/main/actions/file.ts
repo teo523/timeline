@@ -68,6 +68,7 @@ export const openFile2 = async (rootStore: RootStore) => {
   const song2 = await songFromFile(file)
   song2.fileHandle = fileHandle
   setSong2(rootStore)(song2)
+  console.log(fileHandle)
 }
 
 export const songFromFile = async (file: File) => {

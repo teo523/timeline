@@ -16,6 +16,8 @@ import {
   setTempoMidiEvent,
   trackNameMidiEvent,
 } from "../midi/MidiEvent"
+import { TrackColor } from "./TrackColor"
+import { TrackEvent, TrackEventOf } from "./TrackEvent"
 import { isControllerEventWithType, isNoteEvent } from "./identify"
 import {
   getLast,
@@ -28,9 +30,7 @@ import {
   getVolume,
   isTickBefore,
 } from "./selector"
-import { isSignalTrackColorEvent, SignalTrackColorEvent } from "./signalEvents"
-import { TrackColor } from "./TrackColor"
-import { TrackEvent, TrackEventOf } from "./TrackEvent"
+import { SignalTrackColorEvent, isSignalTrackColorEvent } from "./signalEvents"
 import { validateMidiEvent } from "./validate"
 
 export default class Track {
@@ -236,6 +236,11 @@ export default class Track {
   get name() {
     return getTrackNameEvent(this.events)?.text
   }
+
+  get allevents() {
+    return this.events
+  }
+
   get programNumber() {
     return getProgramNumberEvent(this.events)?.value
   }

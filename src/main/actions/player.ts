@@ -3,12 +3,16 @@ import RootStore from "../stores/RootStore"
 import { createEvent as createTrackEvent } from "./"
 
 export const playOrPause =
-  ({ player }: RootStore) =>
+  ({ player, reader }: RootStore) =>
   () => {
     if (player.isPlaying) {
       player.stop()
+      reader.stop()
+      //reader.stop()
     } else {
       player.play()
+      reader.play()
+      //reader.play()
     }
   }
 

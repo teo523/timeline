@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import Color from "color"
 import Help from "mdi-react/HelpCircleIcon"
+import Settings from "mdi-react/SettingsIcon"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useCallback } from "react"
 import { BrowserRouter, Link } from "react-router-dom"
@@ -12,7 +13,6 @@ import logo from "../../images/MMUK_Logo2.png"
 import ArrangeIcon from "../../images/icons/arrange.svg"
 import PianoIcon from "../../images/icons/piano.svg"
 import { FileMenuButton } from "./FileMenuButton"
-
 
 const BannerContainer = styled.div`
   background: ${({ theme }) => theme.themeColor};
@@ -34,7 +34,7 @@ const LogoIcon = styled(logo)`
 
 function LogoMM() {
   // Import result is the URL of your image
-  return <img src={logo} alt="Logo" style={{ height: "1.7rem" }}/>;
+  return <img src={logo} alt="Logo" style={{ height: "1.7rem" }} />
 }
 
 const Container = styled.div`
@@ -96,21 +96,14 @@ export const Navigation: FC = observer(() => {
     router,
   } = useStores()
 
-
   return (
     <Container>
-         <BrowserRouter>
-         <Link to="/">
-        <Tab >
-       
-     
-       
-
-        
-        <LogoMM />
-       
-      </Tab>
-      </Link>
+      <BrowserRouter>
+        <Link to="/">
+          <Tab>
+            <LogoMM />
+          </Tab>
+        </Link>
       </BrowserRouter>
       <FileMenuButton />
 
@@ -154,7 +147,7 @@ export const Navigation: FC = observer(() => {
         </Tab>
       </Tooltip>
 
-{/*       <Tooltip
+      {/*       <Tooltip
         title={
           <>
             <Localized default="Switch Tab">switch-tab</Localized> [
@@ -176,7 +169,17 @@ export const Navigation: FC = observer(() => {
 
       <FlexibleSpacer />
 
-  
+      <Tab
+        onClick={useCallback(
+          () => (rootViewStore.openSettingDialog = true),
+          [],
+        )}
+      >
+        <Settings style={IconStyle} />
+        <TabTitle>
+          <Localized default="Settings">settings</Localized>
+        </TabTitle>
+      </Tab>
 
       <Tab onClick={useCallback(() => (rootViewStore.openHelp = true), [])}>
         <Help style={IconStyle} />
@@ -185,7 +188,7 @@ export const Navigation: FC = observer(() => {
         </TabTitle>
       </Tab>
 
- {/*      <Tab>
+      {/*      <Tab>
         <Forum style={IconStyle} />
         <TabTitle>
           <a href="https://discord.gg/XQxzNdDJse" target="_blank">
@@ -193,8 +196,6 @@ export const Navigation: FC = observer(() => {
           </a>
         </TabTitle>
       </Tab> */}
-
-    
     </Container>
   )
 })

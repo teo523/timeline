@@ -1,5 +1,6 @@
 import { makeObservable, observable } from "mobx"
 import Player from "../../common/player"
+import Reader from "../../common/reader/Reader"
 import Song, { emptySong } from "../../common/song"
 import TrackMute from "../../common/trackMute"
 import { SerializedState, pushHistory } from "../actions/history"
@@ -43,6 +44,7 @@ export default class RootStore {
   readonly authStore = new AuthStore()
   readonly settingStore = new SettingStore()
   readonly player: Player
+  readonly reader: Reader
   readonly synth: SoundFontSynth
   readonly metronomeSynth: SoundFontSynth
   readonly synthGroup = new GroupOutput()
@@ -69,6 +71,9 @@ export default class RootStore {
       this.trackMute,
       this,
     )
+
+    this.reader = new Reader(this, this.player)
+
     this.midiRecorder = new MIDIRecorder(this.player, this)
 
     this.pianoRollStore = new PianoRollStore(this)
@@ -81,6 +86,7 @@ export default class RootStore {
     this.midiInput.onMidiMessage = (e) => {
       preview(e)
       this.midiRecorder.onMessage(e)
+      this.reader.addPlayedNote(e)
     }
 
     this.pianoRollStore.setUpAutorun()

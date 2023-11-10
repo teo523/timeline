@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
+import { songToMidi } from "../../../common/midi/midiConversion"
 import { Localized } from "../../../components/Localized"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { createSong, saveSong } from "../../actions"
@@ -7,6 +8,8 @@ import { openFile, openFile2 } from "../../actions/file"
 import { useLocalization } from "../../hooks/useLocalization"
 import { useStores } from "../../hooks/useStores"
 import { useToast } from "../../hooks/useToast"
+
+var ws = new WebSocket("ws://localhost:9001/")
 
 export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
   const rootStore = useStores()
@@ -64,9 +67,16 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
     await saveFileAs(rootStore)
   } */
 
+  // Send song through websockets when Download button is pressed
   const onClickDownload = () => {
+    const { song } = rootStore
     close()
     saveSong(rootStore)()
+    //ws.send(JSON.stringify(song.tracks[1].events[0]))
+    var bytes = songToMidi(song)
+    var arrBytes = Object.values(bytes)
+    console.log(arrBytes)
+    //ws.send(JSON.stringify(arrBytes))
   }
 
   return (

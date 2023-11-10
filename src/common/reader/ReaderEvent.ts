@@ -3,13 +3,14 @@ import { deassemble as deassembleNote } from "../helpers/noteAssembler"
 import Track, { TrackEvent } from "../track"
 import { DistributiveOmit } from "../types"
 
-export type PlayerEventOf<T> = DistributiveOmit<T, "deltaTime"> & {
+export type ReaderEventOf<T> = DistributiveOmit<T, "deltaTime"> & {
   tick: number
   trackId: number
   subtype: string
+  noteNumber: number
 }
 
-export type PlayerEvent = PlayerEventOf<AnyEvent>
+export type ReaderEvent = ReaderEventOf<AnyEvent>
 
 export const convertTrackEvents = (
   events: TrackEvent[],
@@ -21,8 +22,8 @@ export const convertTrackEvents = (
     .flatMap((e) => deassembleNote(e))
     .map(
       (e) =>
-        ({ ...e, channel: channel, trackId }) as PlayerEventOf<AnyChannelEvent>,
+        ({ ...e, channel: channel, trackId }) as ReaderEventOf<AnyChannelEvent>,
     )
 
-export const collectAllEvents = (tracks: Track[]): PlayerEvent[] =>
+export const collectAllEvents = (tracks: Track[]): ReaderEvent[] =>
   tracks.flatMap((t, i) => convertTrackEvents(t.events, t.channel, i))

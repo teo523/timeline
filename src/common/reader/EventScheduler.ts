@@ -1,5 +1,3 @@
-import { DistributiveOmit } from "../types"
-
 export type SchedulableEvent = {
   tick: number
 }
@@ -39,17 +37,14 @@ export default class EventScheduler<E extends SchedulableEvent> {
   private _scheduledTick = 0
   private _prevTime: number | undefined = undefined
   private _getEvents: (startTick: number, endTick: number) => E[]
-  private _createLoopEndEvents: () => Omit<E, "tick">[]
 
   constructor(
     getEvents: (startTick: number, endTick: number) => E[],
-    createLoopEndEvents: () => DistributiveOmit<E, "tick">[],
     tick = 0,
     timebase = 480,
     lookAheadTime = 50,
   ) {
     this._getEvents = getEvents
-    this._createLoopEndEvents = createLoopEndEvents
     this._currentTick = tick
     this._scheduledTick = tick
     this.timebase = timebase
@@ -110,39 +105,18 @@ export default class EventScheduler<E extends SchedulableEvent> {
 
     this._prevTime = timestamp
 
-    if (
-      this.loop !== null &&
-      startTick < this.loop.end &&
-      endTick >= this.loop.end
-    ) {
-      const loop = this.loop
-      const offset = endTick - loop.end
-      const endTick2 = loop.begin + offset
-      const currentTick = loop.begin - (loop.end - nowTick)
-      this._currentTick = currentTick
-      this._scheduledTick = endTick2
+    this._currentTick = nowTick
+    this._scheduledTick = endTick
 
-      return [
-        ...getEventsInRange(startTick, loop.end, nowTick),
-        ...this._createLoopEndEvents().map((e) =>
-          withTimestamp(currentTick)({ ...e, tick: loop.begin } as E),
-        ),
-        ...getEventsInRange(loop.begin, endTick2, currentTick),
-      ]
-    } else {
-      this._currentTick = nowTick
-      this._scheduledTick = endTick
-
-      const ret = getEventsInRange(startTick, endTick, nowTick)
-      // if (ret.length > 0) {
-      //   console.log("nowTick: ", nowTick)
-      //   console.log("lookAheadTick: ", lookAheadTick)
-      //   console.log("startTick: ", startTick)
-      //   console.log("endTick: ", endTick)
-      //   console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
-      // }
-
-      return ret
+    const ret = getEventsInRange(startTick, endTick, nowTick)
+    if (ret.length > 0) {
+      console.log("nowTick: ", nowTick)
+      console.log("lookAheadTick: ", lookAheadTick)
+      console.log("startTick: ", startTick)
+      console.log("endTick: ", endTick)
+      console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
     }
+
+    return ret
   }
 }

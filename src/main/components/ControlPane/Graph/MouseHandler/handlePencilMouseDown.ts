@@ -34,7 +34,7 @@ export const handlePencilMouseDown =
     const startClientPos = getClientPos(e)
     const pos = transform.fromPosition(startPoint)
 
-    //Creates CC event 
+    //Creates CC event
     const event = createValueEvent(type)(pos.value)
 
     // Add CC event
@@ -43,7 +43,6 @@ export const handlePencilMouseDown =
     //Im adding here an extra CC event, CC84, just for debugging purposes
     /* const event2 = createCCEvent(type)(pos.value)
     createTrackEvent(rootStore)(event2, pos.tick ) */
-
 
     let lastTick = pos.tick
     let lastValue = pos.value
@@ -65,5 +64,5 @@ export const handlePencilMouseDown =
         lastTick = tick
         lastValue = value
       },
-    }) 
+    })
   }

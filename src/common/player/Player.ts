@@ -15,7 +15,7 @@ import { getStatusEvents } from "../track/selector"
 import { ITrackMute } from "../trackMute/ITrackMute"
 import { DistributiveOmit } from "../types"
 import EventScheduler from "./EventScheduler"
-import { convertTrackEvents, PlayerEvent } from "./PlayerEvent"
+import { PlayerEvent, convertTrackEvents } from "./PlayerEvent"
 
 export interface LoopSetting {
   begin: number
@@ -66,7 +66,7 @@ export default class Player {
   }
 
   private get song() {
-    return this._songStore.song
+    return this._songStore.song2
   }
 
   private get timebase() {
@@ -280,20 +280,24 @@ export default class Player {
     }
   }
 
+  //Runs every x milisecond set by setInterval
   private _onTimer() {
     if (this._scheduler === null) {
       return
     }
 
+    //Global time, non stop
     const timestamp = performance.now()
 
     this._scheduler.loop =
       this.loop !== null && this.loop.enabled ? this.loop : null
     const events = this._scheduler.readNextEvents(this._currentTempo, timestamp)
+    //console.log("Events: ", events)
 
     events.forEach(({ event: e, timestamp: time }) => {
       if (e.type === "channel") {
         const delayTime = (time - timestamp) / 1000
+
         if (e.trackId === METRONOME_TRACK_ID) {
           if (this.isMetronomeEnabled) {
             this._metronomeOutput.sendEvent(e, delayTime, timestamp)
@@ -301,6 +305,7 @@ export default class Player {
         } else if (this._trackMute.shouldPlayTrack(e.trackId)) {
           // channel イベントを MIDI Output に送信
           // Send Channel Event to MIDI OUTPUT
+
           this.sendEvent(e, delayTime, timestamp)
         }
       } else {
