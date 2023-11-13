@@ -26,14 +26,16 @@ export default class Reader {
 
   addPlayedNote(e: WebMidi.MIDIMessageEvent) {
     const stream = new Stream(e.data)
-    const message = deserializeSingleEvent(stream)
+    if (stream["buf"].buffer.byteLength > 1) {
+      const message = deserializeSingleEvent(stream)
 
-    if (message.type !== "channel") {
-      return
-    }
+      if (message.type !== "channel") {
+        return
+      }
 
-    if (message.subtype == "noteOn") {
-      this._playedNotes.push(message.noteNumber)
+      if (message.subtype == "noteOn") {
+        this._playedNotes.push(message.noteNumber)
+      }
     }
     //console.log(this._playedNotes)
   }
@@ -48,7 +50,7 @@ export default class Reader {
       }
     })
     this._notes = arr
-    //console.log("Array: ", arr)
+    console.log("notes: ", this._notes)
   }
 
   play() {
@@ -64,7 +66,7 @@ export default class Reader {
     this._playedNotes = []
 
     this._handler = new EventHandler()
-    this._interval = window.setInterval(() => this.listenEvents(), 50)
+    this._interval = window.setInterval(() => this.listenEvents(), 10)
 
     // const nextNote = null
 
@@ -152,11 +154,15 @@ export default class Reader {
 
     // If there are no played notes, only action can be to stop the playhead if we reach a new note
     if (
+      this._player.isPlaying &&
       this._playedNotes.length == 0 &&
       this.notes.length > 0 &&
-      this.notes[0][0] <= this._currentTick
+      this.notes[0][0] - 50 <= this._currentTick
     ) {
       this._player.stop()
+      console.log("stop1")
+      // console.log("this.notes[0][0]: ", this.notes[0][0])
+      // console.log("this._currentTick : ", this._currentTick)
     }
 
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
@@ -168,8 +174,11 @@ export default class Reader {
 
           if (match) {
             //If playing, then move the playhead forward
-            if (this._player.isPlaying) {
-              this._player.position = this._chords[0][0]
+            if (
+              this._player.isPlaying &&
+              this._player.position < this._chords[0][0]
+            ) {
+              this._player.position = this._chords[0][0] - 1
             }
             //If not playing, then play
             else {
@@ -186,7 +195,7 @@ export default class Reader {
           else {
             if (
               this._player.isPlaying &&
-              this._currentTick >= this._chords[0][0]
+              this._currentTick >= this._chords[0][0] - 50
             ) {
               this._player.stop()
             }
@@ -195,10 +204,12 @@ export default class Reader {
       }
       //If next event is a single note
       else if (this.notes.length > 0) {
-        console.log("2")
         if (this._playedNotes[0] == this._notes[0][1]) {
-          if (this._player.isPlaying) {
-            this._player.position = this.notes[0][0]
+          if (
+            this._player.isPlaying &&
+            this._player.position < this._notes[0][0]
+          ) {
+            this._player.position = this.notes[0][0] - 1
           } else {
             this._player.play()
           }
@@ -212,6 +223,9 @@ export default class Reader {
         this._playedNotes.shift()
       }
     }
+
+    //Now handle player
+    this._player.playNotes()
   }
 
   get song() {

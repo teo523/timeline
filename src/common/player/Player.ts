@@ -5,7 +5,7 @@ import { computed, makeObservable, observable } from "mobx"
 import { SendableEvent, SynthOutput } from "../../main/services/SynthOutput"
 import { SongStore } from "../../main/stores/SongStore"
 import { filterEventsWithRange } from "../helpers/filterEvents"
-import { Beat, createBeatsInRange } from "../helpers/mapBeats"
+import { Beat } from "../helpers/mapBeats"
 import {
   controllerMidiEvent,
   noteOffMidiEvent,
@@ -23,8 +23,8 @@ export interface LoopSetting {
   enabled: boolean
 }
 
-const TIMER_INTERVAL = 50
-const LOOK_AHEAD_TIME = 50
+const TIMER_INTERVAL = 20
+const LOOK_AHEAD_TIME = 20
 const METRONOME_TRACK_ID = 99999
 export const DEFAULT_TEMPO = 120
 
@@ -74,24 +74,14 @@ export default class Player {
   }
 
   play() {
+    console.log("Started Player")
     if (this.isPlaying) {
       console.warn("called play() while playing. aborted.")
       return
     }
     this._scheduler = new EventScheduler<PlayerEvent>(
       (startTick, endTick) =>
-        filterEventsWithRange(this.song.allEvents, startTick, endTick).concat(
-          filterEventsWithRange(
-            createBeatsInRange(
-              this.song.measures,
-              this.song.timebase,
-              startTick,
-              endTick,
-            ).flatMap((b) => this.beatToEvents(b)),
-            startTick,
-            endTick,
-          ),
-        ),
+        filterEventsWithRange(this.song.allEvents, startTick, endTick),
       () => this.allNotesOffEvents(),
       this._currentTick,
       this.timebase,
@@ -99,7 +89,7 @@ export default class Player {
     )
     this._isPlaying = true
     this._output.activate()
-    this._interval = window.setInterval(() => this._onTimer(), TIMER_INTERVAL)
+    // this._interval = window.setInterval(() => this._onTimer(), TIMER_INTERVAL)
     this._output.activate()
   }
 
@@ -185,6 +175,7 @@ export default class Player {
   stop() {
     this._scheduler = null
     this.allSoundsOff()
+    console.log("Stopped Player")
     this._isPlaying = false
 
     if (this._interval !== null) {
@@ -281,7 +272,7 @@ export default class Player {
   }
 
   //Runs every x milisecond set by setInterval
-  private _onTimer() {
+  playNotes() {
     if (this._scheduler === null) {
       return
     }
@@ -307,6 +298,9 @@ export default class Player {
           // Send Channel Event to MIDI OUTPUT
 
           this.sendEvent(e, delayTime, timestamp)
+          if (e.subtype == "noteOn") {
+            console.log(timestamp, e.noteNumber, e.velocity)
+          }
         }
       } else {
         // channel イベント以外を実行

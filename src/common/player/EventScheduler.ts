@@ -27,7 +27,7 @@ type WithTimestamp<E> = {
 export default class EventScheduler<E extends SchedulableEvent> {
   // 先読み時間 (ms)
   // Leading time (MS)
-  lookAheadTime = 50
+  lookAheadTime = 20
 
   // 1/4 拍子ごとの tick 数
   // 1/4 TICK number for each beat
@@ -134,13 +134,13 @@ export default class EventScheduler<E extends SchedulableEvent> {
       this._scheduledTick = endTick
 
       const ret = getEventsInRange(startTick, endTick, nowTick)
-      // if (ret.length > 0) {
-      //   console.log("nowTick: ", nowTick)
-      //   console.log("lookAheadTick: ", lookAheadTick)
-      //   console.log("startTick: ", startTick)
-      //   console.log("endTick: ", endTick)
-      //   console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
-      // }
+      if (ret.length > 0) {
+        console.log("nowTick: ", nowTick)
+        console.log("lookAheadTick: ", lookAheadTick)
+        console.log("startTick: ", startTick)
+        console.log("endTick: ", endTick)
+        console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
+      }
 
       return ret
     }

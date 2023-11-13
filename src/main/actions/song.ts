@@ -33,7 +33,6 @@ export const setSong = (rootStore: RootStore) => (song: Song) => {
   arrangeViewStore.selectedEventIds = []
 
   historyStore.clear()
-
   player.stop()
   player.reset()
   player.position = 0

@@ -19,6 +19,11 @@ export class GroupOutput implements SynthOutput {
   ): void {
     this.outputs
       .filter((o) => o.isEnabled)
-      .forEach((o) => o.synth.sendEvent(event, delayTime, timestampNow))
+      .forEach((o) => {
+        if (event.subtype == "noteOn" || event.subtype == "noteOff") {
+          o.synth.sendEvent(event, delayTime, timestampNow)
+          // console.log(event.subtype, event.noteNumber, event.velocity)
+        }
+      })
   }
 }

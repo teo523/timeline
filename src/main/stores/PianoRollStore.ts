@@ -37,12 +37,12 @@ export default class PianoRollStore {
   scrollTopKeys = 70 // 中央くらいの音程にスクロールしておく
   SCALE_X_MIN = 0.15
   SCALE_X_MAX = 15
-  SCALE_Y_MIN = 0.5
+  SCALE_Y_MIN = 0.3
   SCALE_Y_MAX = 4
   notesCursor = "auto"
   mouseMode: PianoRollMouseMode = "pencil"
   scaleX = 1
-  scaleY = 1
+  scaleY = 0.3
   autoScroll = true
   quantize = 8
   isQuantizeEnabled = true

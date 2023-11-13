@@ -24,6 +24,7 @@ export default class MIDIOutput implements SynthOutput {
       try {
         this.midiOutput.send(msg, timestamp)
       } catch (e) {
+        console.log(msg)
         console.warn(e)
       }
     }

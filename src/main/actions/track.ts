@@ -67,7 +67,7 @@ export const createEvent =
       throw new Error("selected track is undefined")
     }
     pushHistory()
-    
+
     const id = selectedTrack.createOrUpdate({
       ...e,
       tick: quantizer.round(tick ?? player.position),
@@ -76,6 +76,9 @@ export const createEvent =
     // 即座に反映する
     // Reflect immediately
     if (tick !== undefined) {
+      if (e.subtype == "noteOn") {
+        console.log(e.noteNumber)
+      }
       player.sendEvent(e)
     }
 

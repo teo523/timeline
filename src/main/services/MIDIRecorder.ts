@@ -64,45 +64,50 @@ export class MIDIRecorder {
     }
 
     const stream = new Stream(e.data)
-    const message = deserializeSingleEvent(stream)
+    //console.log(stream["buf"].buffer.byteLength)
 
-    if (message.type !== "channel") {
-      return
-    }
+    //Workaround for avoiding error when connecting MIDI controller
+    if (stream["buf"].buffer.byteLength > 1) {
+      const message = deserializeSingleEvent(stream)
 
-    const tick = this.player.position
-
-    switch (message.subtype) {
-      case "noteOn": {
-        const note = track.addEvent<NoteEvent>({
-          type: "channel",
-          subtype: "note",
-          noteNumber: message.noteNumber,
-          tick,
-          velocity: message.velocity,
-          duration: 0,
-          isRecording: true,
-        })
-        this.recordedNotes.push(note)
-        break
+      if (message.type !== "channel") {
+        return
       }
-      case "noteOff": {
-        this.recordedNotes
-          .filter((n) => n.noteNumber === message.noteNumber)
-          .forEach((n) => {
-            track.updateEvent<NoteEvent>(n.id, {
-              duration: Math.max(0, tick - n.tick),
-            })
+
+      const tick = this.player.position
+
+      switch (message.subtype) {
+        case "noteOn": {
+          const note = track.addEvent<NoteEvent>({
+            type: "channel",
+            subtype: "note",
+            noteNumber: message.noteNumber,
+            tick,
+            velocity: message.velocity,
+            duration: 0,
+            isRecording: true,
           })
+          this.recordedNotes.push(note)
+          break
+        }
+        case "noteOff": {
+          this.recordedNotes
+            .filter((n) => n.noteNumber === message.noteNumber)
+            .forEach((n) => {
+              track.updateEvent<NoteEvent>(n.id, {
+                duration: Math.max(0, tick - n.tick),
+              })
+            })
 
-        this.recordedNotes = this.recordedNotes.filter(
-          (n) => n.noteNumber !== message.noteNumber,
-        )
-        break
-      }
-      default: {
-        track.addEvent({ ...message, tick, isRecording: true })
-        break
+          this.recordedNotes = this.recordedNotes.filter(
+            (n) => n.noteNumber !== message.noteNumber,
+          )
+          break
+        }
+        default: {
+          track.addEvent({ ...message, tick, isRecording: true })
+          break
+        }
       }
     }
   }

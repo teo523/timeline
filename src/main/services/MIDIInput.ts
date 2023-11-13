@@ -39,14 +39,14 @@ export const previewMidiInput =
     }
 
     const stream = new Stream(e.data)
-    const event = deserializeSingleEvent(stream)
+    if (stream["buf"].buffer.byteLength > 1) {
+      const event = deserializeSingleEvent(stream)
 
-    if (event.type !== "channel") {
-      return
+      if (event.type !== "channel") {
+        return
+      }
+
+      // modify channel to the selected track channel
+      event.channel = channel
     }
-
-    // modify channel to the selected track channel
-    event.channel = channel
-
-    player.sendEvent(event)
   }
