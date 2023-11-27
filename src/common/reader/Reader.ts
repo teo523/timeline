@@ -120,11 +120,13 @@ export default class Reader {
 
   private checkMatchChords(): boolean {
     var check = true
+    var checkedNotes = []
     for (let i = 1; i < this._chords[0].length - 1; i++) {
       var found = false
       for (let k = 0; k < this._playedNotes.length; k++) {
         if (this._chords[0][i] === this._playedNotes[k]) {
           found = true
+          checkedNotes.push(this._chords[0][i])
           break
         }
       }
@@ -133,9 +135,10 @@ export default class Reader {
         // console.log(this._chords)
         // console.log(i)
         check = false
-        break
       }
     }
+    this._playedNotes = checkedNotes
+
     return check
   }
 
@@ -143,6 +146,8 @@ export default class Reader {
     // move reader position
     this._currentTick = this._player.position
     //if (this._playedNotes[0] === nextNotes[0][1])
+
+    //this._playedNotes = [...new Set(this._playedNotes)]
 
     if (this.notes.length > 0) {
       // console.log(this.notes)
@@ -168,39 +173,45 @@ export default class Reader {
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
       //if next event is a chord
       if (this._chords.length > 0 && this._chords[0][0] <= this.notes[0][0]) {
-        if (this._playedNotes.length >= this._chords[0].length - 1) {
-          //Check if notes match
-          const match = this.checkMatchChords()
-
-          if (match) {
-            //If playing, then move the playhead forward
-            if (
-              this._player.isPlaying &&
-              this._player.position < this._chords[0][0]
-            ) {
-              this._player.position = this._chords[0][0] - 1
-            }
-            //If not playing, then play
-            else {
-              this._player.play()
-            }
-            //Update arrays
-            for (var k = 0; k < this._chords[0].length - 1; k++) {
-              this._notes.shift()
-            }
-            this._chords.shift()
-            this._playedNotes = []
+        console.log("nextEvent is chord")
+        console.log(this._playedNotes)
+        console.log(this._chords[0])
+        // if (this._playedNotes.length >= this._chords[0].length - 1) {
+        //Check if notes match
+        const match = this.checkMatchChords()
+        console.log("match:", match)
+        if (match) {
+          //If playing, then move the playhead forward
+          if (
+            this._player.isPlaying &&
+            this._player.position < this._chords[0][0]
+          ) {
+            this._player.position = this._chords[0][0] - 2
           }
-          // If there is no match, only thing to do is to stop the playhead if we hit next chord
+          //If not playing, then play
           else {
-            if (
-              this._player.isPlaying &&
-              this._currentTick >= this._chords[0][0] - 50
-            ) {
-              this._player.stop()
-            }
+            this._player.play()
+          }
+          //Update arrays
+          for (var k = 0; k < this._chords[0].length - 1; k++) {
+            this._notes.shift()
+          }
+          this._chords.shift()
+          this._playedNotes = []
+        }
+
+        // If there is no match, only thing to do is to stop the playhead if we hit next chord
+        else {
+          console.log("this._currentTick", this._currentTick)
+          console.log("this._chords[0][0] - 50", this._chords[0][0] - 50)
+          if (
+            this._player.isPlaying &&
+            this._currentTick >= this._chords[0][0] - 50
+          ) {
+            this._player.stop()
           }
         }
+        // }
       }
       //If next event is a single note
       else if (this.notes.length > 0) {
@@ -209,7 +220,7 @@ export default class Reader {
             this._player.isPlaying &&
             this._player.position < this._notes[0][0]
           ) {
-            this._player.position = this.notes[0][0] - 1
+            this._player.position = this.notes[0][0] - 2
           } else {
             this._player.play()
           }

@@ -135,11 +135,11 @@ export default class EventScheduler<E extends SchedulableEvent> {
 
       const ret = getEventsInRange(startTick, endTick, nowTick)
       if (ret.length > 0) {
-        console.log("nowTick: ", nowTick)
-        console.log("lookAheadTick: ", lookAheadTick)
-        console.log("startTick: ", startTick)
-        console.log("endTick: ", endTick)
-        console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
+        // console.log("nowTick: ", nowTick)
+        // console.log("lookAheadTick: ", lookAheadTick)
+        // console.log("startTick: ", startTick)
+        // console.log("endTick: ", endTick)
+        // console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
       }
 
       return ret

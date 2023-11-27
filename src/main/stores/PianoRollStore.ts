@@ -41,7 +41,7 @@ export default class PianoRollStore {
   SCALE_Y_MAX = 4
   notesCursor = "auto"
   mouseMode: PianoRollMouseMode = "pencil"
-  scaleX = 1
+  scaleX = 0.15
   scaleY = 0.3
   autoScroll = true
   quantize = 8
