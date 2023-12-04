@@ -22,7 +22,7 @@ export class GroupOutput implements SynthOutput {
       .forEach((o) => {
         if (event.subtype == "noteOn" || event.subtype == "noteOff") {
           o.synth.sendEvent(event, delayTime, timestampNow)
-          // console.log(event.subtype, event.noteNumber, event.velocity)
+          console.log(event.subtype, event.noteNumber, event.velocity)
         }
       })
   }

@@ -27,7 +27,7 @@ type WithTimestamp<E> = {
 export default class EventScheduler<E extends SchedulableEvent> {
   // 先読み時間 (ms)
   // Leading time (MS)
-  lookAheadTime = 20
+  lookAheadTime = 10
 
   // 1/4 拍子ごとの tick 数
   // 1/4 TICK number for each beat
@@ -46,7 +46,7 @@ export default class EventScheduler<E extends SchedulableEvent> {
     createLoopEndEvents: () => DistributiveOmit<E, "tick">[],
     tick = 0,
     timebase = 480,
-    lookAheadTime = 50,
+    lookAheadTime = 10,
   ) {
     this._getEvents = getEvents
     this._createLoopEndEvents = createLoopEndEvents

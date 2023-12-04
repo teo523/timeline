@@ -72,7 +72,7 @@ export default class RootStore {
       this,
     )
 
-    this.reader = new Reader(this, this.player)
+    this.reader = new Reader(this, this.player, this.synthGroup)
 
     this.midiRecorder = new MIDIRecorder(this.player, this)
 

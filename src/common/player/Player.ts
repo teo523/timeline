@@ -23,8 +23,8 @@ export interface LoopSetting {
   enabled: boolean
 }
 
-const TIMER_INTERVAL = 20
-const LOOK_AHEAD_TIME = 20
+const TIMER_INTERVAL = 5
+const LOOK_AHEAD_TIME = 5
 const METRONOME_TRACK_ID = 99999
 export const DEFAULT_TEMPO = 120
 
@@ -33,6 +33,7 @@ export default class Player {
   private _scheduler: EventScheduler<PlayerEvent> | null = null
   private _songStore: SongStore
   private _output: SynthOutput
+  private _notes: [number, number][]
   private _metronomeOutput: SynthOutput
   private _trackMute: ITrackMute
   private _interval: number | null = null
@@ -41,6 +42,7 @@ export default class Player {
 
   disableSeek: boolean = false
   isMetronomeEnabled: boolean = false
+  timeStopped: number = 0
 
   loop: LoopSetting | null = null
 
@@ -63,6 +65,7 @@ export default class Player {
     this._metronomeOutput = metronomeOutput
     this._trackMute = trackMute
     this._songStore = songStore
+    this._notes = []
   }
 
   private get song() {
@@ -87,10 +90,10 @@ export default class Player {
       this.timebase,
       TIMER_INTERVAL + LOOK_AHEAD_TIME,
     )
+
     this._isPlaying = true
     this._output.activate()
     // this._interval = window.setInterval(() => this._onTimer(), TIMER_INTERVAL)
-    this._output.activate()
   }
 
   set position(tick: number) {
@@ -255,7 +258,7 @@ export default class Player {
     if (this._scheduler !== null) {
       this._currentTick = this._scheduler.scheduledTick
     }
-  }, 50)
+  }, 20)
 
   private applyPlayerEvent(
     e: DistributiveOmit<AnyEvent, "deltaTime" | "channel">,
