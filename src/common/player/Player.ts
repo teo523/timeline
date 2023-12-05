@@ -23,8 +23,8 @@ export interface LoopSetting {
   enabled: boolean
 }
 
-const TIMER_INTERVAL = 20
-const LOOK_AHEAD_TIME = 20
+const TIMER_INTERVAL = 10
+const LOOK_AHEAD_TIME = 10
 const METRONOME_TRACK_ID = 99999
 export const DEFAULT_TEMPO = 120
 
@@ -79,6 +79,7 @@ export default class Player {
       console.warn("called play() while playing. aborted.")
       return
     }
+    console.log("Tempo:", this._currentTempo)
     this._scheduler = new EventScheduler<PlayerEvent>(
       (startTick, endTick) =>
         filterEventsWithRange(this.song.allEvents, startTick, endTick),

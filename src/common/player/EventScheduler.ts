@@ -92,7 +92,7 @@ export default class EventScheduler<E extends SchedulableEvent> {
       this._prevTime = timestamp
     }
     const delta = timestamp - this._prevTime
-    const deltaTick = Math.max(0, this.millisecToTick(delta, bpm))
+    const deltaTick = Math.max(0, this.millisecToTick(delta, bpm - 100))
     const nowTick = Math.floor(this._currentTick + deltaTick)
 
     // 先読み時間

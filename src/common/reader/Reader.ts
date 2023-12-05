@@ -16,6 +16,7 @@ export default class Reader {
   private _interval: number | null = null
   private _player: Player
   private _playedNotes: number[] = []
+  private _tolerance = 50
 
   constructor(songStore: SongStore, player: Player) {
     this._notes = []
@@ -65,7 +66,7 @@ export default class Reader {
     this._chords = this.getChords(this.notes)
     this._playedNotes = []
 
-    this._handler = new EventHandler()
+    //this._handler = new EventHandler()
     this._interval = window.setInterval(() => this.listenEvents(), 10)
 
     // const nextNote = null
@@ -114,14 +115,14 @@ export default class Reader {
         }
       }
     })
-
+    console.log("chords: ", chords)
     return chords
   }
 
   private checkMatchChords(): boolean {
     var check = true
     var checkedNotes = []
-    for (let i = 1; i < this._chords[0].length - 1; i++) {
+    for (let i = 1; i < this._chords[0].length; i++) {
       var found = false
       for (let k = 0; k < this._playedNotes.length; k++) {
         if (this._chords[0][i] === this._playedNotes[k]) {
@@ -130,14 +131,17 @@ export default class Reader {
           break
         }
       }
-      if (!found) {
-        // console.log(this._playedNotes)
-        // console.log(this._chords)
-        // console.log(i)
-        check = false
-      }
+      // if (!found) {
+      //   // console.log(this._playedNotes)
+      //   // console.log(this._chords)
+      //   // console.log(i)
+      //   check = false
+
+      // }
     }
     this._playedNotes = checkedNotes
+    let ratio = checkedNotes.length / (this._chords[0].length - 1)
+    check = ratio >= this._tolerance / 100
 
     return check
   }
@@ -162,7 +166,7 @@ export default class Reader {
       this._player.isPlaying &&
       this._playedNotes.length == 0 &&
       this.notes.length > 0 &&
-      this.notes[0][0] - 50 <= this._currentTick
+      this.notes[0][0] - 30 <= this._currentTick
     ) {
       this._player.stop()
       console.log("stop1")
@@ -173,13 +177,13 @@ export default class Reader {
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
       //if next event is a chord
       if (this._chords.length > 0 && this._chords[0][0] <= this.notes[0][0]) {
-        console.log("nextEvent is chord")
-        console.log(this._playedNotes)
-        console.log(this._chords[0])
+        // console.log("nextEvent is chord")
+        // console.log(this._playedNotes)
+        // console.log(this._chords[0])
         // if (this._playedNotes.length >= this._chords[0].length - 1) {
         //Check if notes match
         const match = this.checkMatchChords()
-        console.log("match:", match)
+        // console.log("match:", match)
         if (match) {
           //If playing, then move the playhead forward
           if (
@@ -202,11 +206,11 @@ export default class Reader {
 
         // If there is no match, only thing to do is to stop the playhead if we hit next chord
         else {
-          console.log("this._currentTick", this._currentTick)
-          console.log("this._chords[0][0] - 50", this._chords[0][0] - 50)
+          // console.log("this._currentTick", this._currentTick)
+          // console.log("this._chords[0][0] - 50", this._chords[0][0] - 50)
           if (
             this._player.isPlaying &&
-            this._currentTick >= this._chords[0][0] - 50
+            this._currentTick >= this._chords[0][0] - 30
           ) {
             this._player.stop()
           }
@@ -249,5 +253,14 @@ export default class Reader {
 
   get isPlaying() {
     return this._isPlaying
+  }
+
+  get tolerance() {
+    return this._tolerance
+  }
+
+  set tolerance(tol: number) {
+    this._tolerance = tol
+    console.log("tol", tol)
   }
 }
