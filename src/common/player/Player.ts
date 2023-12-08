@@ -93,6 +93,7 @@ export default class Player {
 
     this._isPlaying = true
     this._output.activate()
+    this.sendCurrentStateEvents()
     // this._interval = window.setInterval(() => this._onTimer(), TIMER_INTERVAL)
   }
 
@@ -112,8 +113,6 @@ export default class Player {
     if (this.isPlaying) {
       this.allSoundsOff()
     }
-
-    this.sendCurrentStateEvents()
   }
 
   get position() {
@@ -199,6 +198,7 @@ export default class Player {
    and send them to the synthesizer
   */
   sendCurrentStateEvents() {
+    console.log("currentStateEvents")
     this.song.tracks
       .flatMap((t, i) => {
         const statusEvents = getStatusEvents(t.events, this._currentTick)
@@ -267,6 +267,7 @@ export default class Player {
       switch (e.subtype) {
         case "setTempo":
           this._currentTempo = 60000000 / e.microsecondsPerBeat
+
           break
         default:
           break

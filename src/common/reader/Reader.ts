@@ -25,6 +25,11 @@ export default class Reader {
   private _out: number[][][] = []
   private _startTime: number = 0
   private _initialPosition: number = 0
+  private _lastTick = 0
+  private _noteTime = 0
+  private _lastTime = 0
+  private _lastPlayedNote = 0
+  private _prevNoteTime = 0
 
   constructor(songStore: SongStore, player: Player, output: SynthOutput) {
     this._notes = []
@@ -46,9 +51,64 @@ export default class Reader {
       //check if there are recent notes and put them together
 
       if (message.subtype == "noteOn") {
-        this._playedNotes.push(message.noteNumber)
-        this.listenEvents()
+        // console.log("this._out: ", this._out)
+        if ((this._lastPlayedNote = 0)) {
+          this._lastPlayedNote = performance.now()
+        } else {
+          let delta = performance.now() - this._lastPlayedNote
+          let segmentTime =
+            this.tickToMillisec(this.timebase, this._player.currentTempo) / 2
+          //When press if slightly after the beat, reduce tempo
+          if (Math.abs(delta % segmentTime) < 40) {
+            console.log("reduce tempo")
+            this._player.currentTempo =
+              this._player.currentTempo *
+              (1 -
+                (delta % segmentTime) /
+                  this.tickToMillisec(480, this._player.currentTempo))
+          }
+          //When press if slightly before the beat, increase tempo
+          else if (segmentTime - ((delta + segmentTime) % segmentTime) < 40) {
+            console.log("increase tempo")
+            this._player.currentTempo =
+              this._player.currentTempo *
+              (1 +
+                (segmentTime - ((delta + segmentTime) % segmentTime)) /
+                  this.tickToMillisec(480, this._player.currentTempo))
+          }
+        }
+
+        this._lastPlayedNote = performance.now()
+
+        // if (
+        //   Math.abs(this._player.position - this._lastPlayedNote[0]) < 50 &&
+        //   message.noteNumber == this._lastPlayedNote[1]
+        // ) {
+        //   this._player.currentTempo =
+        //     this._player.currentTempo *
+        //     (1 -
+        //       (this._player.position - this._lastPlayedNote[0]) /
+        //         this.tickToMillisec(480, this._player.currentTempo))
+        // } else if (
+        //   Math.abs(this._player.position - this._prevNoteTime) < 50 &&
+        //   this._out[0].length > 1
+        // ) {
+        //   if (message.noteNumber == this._out[0][1][0]) {
+        //     this._player.currentTempo =
+        //       this._player.currentTempo *
+        //       (1 +
+        //         (this._out[0][0][0] - this._player.position) /
+        //           this.tickToMillisec(480, this._player.currentTempo))
+        //   }
+        // }
+
+        console.log(this._player.currentTempo)
       }
+
+      // if (message.subtype == "noteOn") {
+      //   this._playedNotes.push(message.noteNumber)
+      //   this.listenEvents()
+      // }
       // else if (message.subtype == "noteOff") {
       //   this._player.sendEvent(
       //     noteOffMidiEvent(0, 1, message.noteNumber, message.velocity),
@@ -86,8 +146,8 @@ export default class Reader {
     this._in = this.groupNotesInput(input)
     this._out = this.groupNotesOutput(output)
 
-    console.log("groupedIn: ", this._in)
-    console.log("groupedOut: ", this._out)
+    // console.log("groupedIn: ", this._in)
+    // console.log("groupedOut: ", this._out)
     // console.log("input: ", input)
     // console.log("output: ", output)
 
@@ -115,11 +175,15 @@ export default class Reader {
       return
     }
 
+    // console.log("init:", this._player.position)
     this._currentTick = this._player.position
     this._startTime = performance.now()
+    this._noteTime = this._startTime
+    this._lastTick = this._currentTick
+    this._lastTime = this._startTime
     this._initialPosition = this._player.position
-    console.log(this._initialPosition)
-    console.log("play")
+
+    // console.log("play")
     this._playerOn = true
     this.allNotes()
     this._notes = this.getNextNotes()
@@ -310,7 +374,7 @@ export default class Reader {
         if (this._playedNotes[0] == this._notes[0][1]) {
           if (this._playerOn && this._player.position < this._notes[0][0]) {
             this._player.position = this.notes[0][0] + 2
-            console.log("New Position: ", this._player.position)
+            // console.log("New Position: ", this._player.position)
           } else {
             this._playerOn = true
           }
@@ -360,8 +424,8 @@ export default class Reader {
 
   _playOutNotes() {
     const output = this._output
-    const startTime = this._startTime
-    const initPos = this.tickToMillisec(this._initialPosition, 144)
+    this._noteTime = performance.now()
+    this._lastTick = this._player.position
 
     // If the playhead has passed the note to be played by 50 ms, then stop playing output notes
     // if (this._in[0][0] + 50 < this._player.position) {
@@ -372,31 +436,66 @@ export default class Reader {
     //   }
     // }
     while (this._player.position + 100 > this._out[0][0][0]) {
-      const noteTime = this.tickToMillisec(this._out[0][0][0], 144)
+      // console.log("this._noteTime", this._noteTime)
+      // console.log(
+      //   "this._out[0][0][0] - this._lastTick",
+      //   this._out[0][0][0] - this._lastTick,
+      // )
+
+      this._noteTime =
+        this._noteTime +
+        this.tickToMillisec(
+          this._out[0][0][0] - this._lastTick,
+          this._player.currentTempo,
+        )
+      // console.log("performance.now()", performance.now())
+      // console.log("this._noteTime:", this._noteTime)
+
+      let time = this._noteTime
+      let addNote = false
+      let note = 0
       this._out[0].forEach(function (msg, idx) {
+        addNote = false
         if (idx > 0) {
           if (msg[1] > 0) {
-            output.sendEvent(
-              noteOnMidiEvent(0, 1, msg[0], msg[1]),
-              0,
-              startTime + noteTime - initPos,
-            )
-            // console.log(performance.now())
-            // console.log(startTime + noteTime - initPos)
+            output.sendEvent(noteOnMidiEvent(0, 1, msg[0], msg[1]), 0, time)
+            addNote = true
+            note = msg[0]
           } else {
-            output.sendEvent(
-              noteOffMidiEvent(0, 1, msg[0], msg[1]),
-              0,
-              startTime + noteTime - initPos,
-            )
+            output.sendEvent(noteOffMidiEvent(0, 1, msg[0], msg[1]), 0, time)
           }
         }
       })
+
+      // if (addNote) {
+      //   this._lastPlayedNote = [this._out[0][0][0], note]
+      // }
+
       this._out.shift()
+
+      if (addNote) {
+        this._prevNoteTime = this._out[0][0][0]
+      }
     }
 
-    this._player.position = Math.round(
-      this.millisecToTick(performance.now() - this._startTime + initPos, 144),
-    )
+    if (this._lastTime > 0) {
+      console.log("this._player.position: ", this._player.position)
+      console.log("tempo: ", this._player.currentTempo)
+      this._player.position =
+        this._player.position +
+        Math.round(
+          this.millisecToTick(
+            performance.now() - this._lastTime,
+            this._player.currentTempo,
+          ),
+        )
+    }
+
+    this._lastTime = performance.now()
+
+    // console.log(
+    //   " performance.now() - currentTime",
+    //   performance.now() - currentTime,
+    // )
   }
 }
