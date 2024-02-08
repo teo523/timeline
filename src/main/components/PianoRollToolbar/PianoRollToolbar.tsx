@@ -17,7 +17,7 @@ const FlexibleSpacer = styled.div`
 `
 
 export const PianoRollToolbar: FC = observer(() => {
-  const { pianoRollStore } = useStores()
+  const { pianoRollStore, pianoRollStore2 } = useStores()
 
   const {
     quantize,
@@ -27,10 +27,10 @@ export const PianoRollToolbar: FC = observer(() => {
     selectedTrackId,
   } = pianoRollStore
 
-  const onClickAutoScroll = useCallback(
-    () => (pianoRollStore.autoScroll = !pianoRollStore.autoScroll),
-    [pianoRollStore],
-  )
+  const onClickAutoScroll = useCallback(() => {
+    pianoRollStore.autoScroll = !pianoRollStore.autoScroll
+    pianoRollStore2.autoScroll = !pianoRollStore2.autoScroll
+  }, [pianoRollStore, pianoRollStore2])
 
   const onSelectQuantize = useCallback(
     (denominator: number) => {

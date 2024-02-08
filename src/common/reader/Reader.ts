@@ -17,6 +17,8 @@ export default class Reader {
   private _player: Player
   private _playedNotes: number[] = []
   private _tolerance = 50
+  private _chordLock = false
+  private _chordCounter = 0
 
   constructor(songStore: SongStore, player: Player) {
     this._notes = []
@@ -67,7 +69,7 @@ export default class Reader {
     this._playedNotes = []
 
     //this._handler = new EventHandler()
-    this._interval = window.setInterval(() => this.listenEvents(), 10)
+    this._interval = window.setInterval(() => this.listenEvents(), 20)
 
     // const nextNote = null
 
@@ -177,48 +179,53 @@ export default class Reader {
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
       //if next event is a chord
       if (this._chords.length > 0 && this._chords[0][0] <= this.notes[0][0]) {
-        // console.log("nextEvent is chord")
-        // console.log(this._playedNotes)
-        // console.log(this._chords[0])
-        // if (this._playedNotes.length >= this._chords[0].length - 1) {
-        //Check if notes match
-        const match = this.checkMatchChords()
-        // console.log("match:", match)
-        if (match) {
-          //If playing, then move the playhead forward
-          if (
-            this._player.isPlaying &&
-            this._player.position < this._chords[0][0]
-          ) {
-            this._player.position = this._chords[0][0] - 2
+        if (!this._chordLock) {
+          // console.log("nextEvent is chord")
+          // console.log(this._playedNotes)
+          // console.log(this._chords[0])
+          // if (this._playedNotes.length >= this._chords[0].length - 1) {
+          //Check if notes match
+          const match = this.checkMatchChords()
+          // console.log("match:", match)
+          if (match) {
+            //If playing, then move the playhead forward
+            if (
+              this._player.isPlaying &&
+              this._player.position < this._chords[0][0]
+            ) {
+              this._player.position = this._chords[0][0] - 2
+            }
+            //If not playing, then play
+            else {
+              this._player.play()
+            }
+            //Update arrays
+            for (var k = 0; k < this._chords[0].length - 1; k++) {
+              this._notes.shift()
+            }
+            this._chords.shift()
+            this._playedNotes = []
+            this._chordLock = true
+            this._chordCounter = performance.now()
           }
-          //If not playing, then play
-          else {
-            this._player.play()
-          }
-          //Update arrays
-          for (var k = 0; k < this._chords[0].length - 1; k++) {
-            this._notes.shift()
-          }
-          this._chords.shift()
-          this._playedNotes = []
-        }
 
-        // If there is no match, only thing to do is to stop the playhead if we hit next chord
-        else {
-          // console.log("this._currentTick", this._currentTick)
-          // console.log("this._chords[0][0] - 50", this._chords[0][0] - 50)
-          if (
-            this._player.isPlaying &&
-            this._currentTick >= this._chords[0][0] - 30
-          ) {
-            this._player.stop()
+          // If there is no match, only thing to do is to stop the playhead if we hit next chord
+          else {
+            // console.log("this._currentTick", this._currentTick)
+            // console.log("this._chords[0][0] - 50", this._chords[0][0] - 50)
+            if (
+              this._player.isPlaying &&
+              this._currentTick >= this._chords[0][0] - 30
+            ) {
+              this._player.stop()
+              console.log("stop2")
+            }
           }
         }
-        // }
       }
+
       //If next event is a single note
-      else if (this.notes.length > 0) {
+      else if (this.notes.length > 0 && !this._chordLock) {
         if (this._playedNotes[0] == this._notes[0][1]) {
           if (
             this._player.isPlaying &&
@@ -231,7 +238,8 @@ export default class Reader {
           this.notes.shift()
         } else {
           if (this._player.isPlaying) {
-            this._player.stop()
+            // this._player.stop()
+            // console.log("stop3")
           }
         }
 
@@ -241,6 +249,12 @@ export default class Reader {
 
     //Now handle player
     this._player.playNotes()
+    if (performance.now() - this._chordCounter > 40) {
+      this._chordLock = false
+    }
+    if (this._chordLock) {
+      this._playedNotes = []
+    }
   }
 
   get song() {

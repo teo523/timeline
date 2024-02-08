@@ -34,6 +34,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
         cursorX,
         selectionBounds,
       },
+      pianoRollStore2: { scrollLeft: scl },
     } = rootStore
 
     const [mouseHandler] = useState(new NoteMouseHandler(rootStore))
@@ -58,7 +59,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
 
     const scrollXMatrix = useMemo(
       () => matrixFromTranslation(-scrollLeft, 0),
-      [scrollLeft],
+      [scrollLeft, scl],
     )
 
     const scrollYMatrix = useMemo(

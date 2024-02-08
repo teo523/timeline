@@ -90,7 +90,7 @@ export default class RootStore {
     }
 
     this.pianoRollStore.setUpAutorun()
-    this.pianoRollStore.setUpAutorun()
+    this.pianoRollStore2.setUpAutorun()
     this.arrangeViewStore.setUpAutorun()
     this.arrangeViewStore2.setUpAutorun()
     this.tempoEditorStore.setUpAutorun()

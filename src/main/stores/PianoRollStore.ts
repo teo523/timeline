@@ -162,6 +162,7 @@ export default class PianoRollStore {
     const maxX = contentWidth - canvasWidth
     const scrollLeft = clamp(x, 0, maxX)
     this.scrollLeftTicks = this.transform.getTicks(scrollLeft)
+    console.log("setScrollLeftInPixels")
   }
 
   setScrollTopInPixels(y: number) {
@@ -173,6 +174,7 @@ export default class PianoRollStore {
 
   setScrollLeftInTicks(tick: number) {
     this.setScrollLeftInPixels(this.transform.getX(tick))
+    console.log("setScrollLeftInTicks")
   }
 
   setScrollTopInKeys(keys: number) {

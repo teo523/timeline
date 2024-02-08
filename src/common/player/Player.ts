@@ -23,8 +23,8 @@ export interface LoopSetting {
   enabled: boolean
 }
 
-const TIMER_INTERVAL = 10
-const LOOK_AHEAD_TIME = 10
+const TIMER_INTERVAL = 20
+const LOOK_AHEAD_TIME = 20
 const METRONOME_TRACK_ID = 99999
 export const DEFAULT_TEMPO = 120
 
