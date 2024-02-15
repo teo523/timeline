@@ -15,10 +15,18 @@ export default class Reader {
   private _isPlaying: boolean = false
   private _interval: number | null = null
   private _player: Player
-  private _playedNotes: number[] = []
+  private _playedNotes: number[][] = []
   private _tolerance = 50
   private _chordLock = false
   private _chordCounter = 0
+
+  //Assuming files with resolution of 960
+  timebase = 960
+  lastMatchTime = 0
+  lastPosition = 0
+  instantTempo = 120
+  delta_0 = 0
+  delta_1 = 0
 
   constructor(songStore: SongStore, player: Player) {
     this._notes = []
@@ -37,7 +45,7 @@ export default class Reader {
       }
 
       if (message.subtype == "noteOn") {
-        this._playedNotes.push(message.noteNumber)
+        this._playedNotes.push([performance.now(), message.noteNumber])
       }
     }
     //console.log(this._playedNotes)
@@ -121,15 +129,15 @@ export default class Reader {
     return chords
   }
 
-  private checkMatchChords(): boolean {
+  private checkMatchChords(): [boolean, number] {
     var check = true
     var checkedNotes = []
     for (let i = 1; i < this._chords[0].length; i++) {
       var found = false
       for (let k = 0; k < this._playedNotes.length; k++) {
-        if (this._chords[0][i] === this._playedNotes[k]) {
+        if (this._chords[0][i] === this._playedNotes[k][1]) {
           found = true
-          checkedNotes.push(this._chords[0][i])
+          checkedNotes.push([this._playedNotes[k][0], this._chords[0][i]])
           break
         }
       }
@@ -145,7 +153,11 @@ export default class Reader {
     let ratio = checkedNotes.length / (this._chords[0].length - 1)
     check = ratio >= this._tolerance / 100
 
-    return check
+    if (checkedNotes.length > 0) {
+      return [check, checkedNotes[0][0]]
+    } else {
+      return [check, 1]
+    }
   }
 
   private listenEvents() {
@@ -185,7 +197,7 @@ export default class Reader {
           // console.log(this._chords[0])
           // if (this._playedNotes.length >= this._chords[0].length - 1) {
           //Check if notes match
-          const match = this.checkMatchChords()
+          let [match, timeNote] = this.checkMatchChords()
           // console.log("match:", match)
           if (match) {
             //If playing, then move the playhead forward
@@ -199,6 +211,24 @@ export default class Reader {
             else {
               this._player.play()
             }
+
+            //Calculate dofference between expected and actual tempo
+            this.delta_0 = this.tickToMillisec(
+              this._player.position - this.lastPosition,
+              this._player.currentTempo,
+            )
+            this.delta_1 = timeNote - this.lastMatchTime
+
+            console.log("instant tempo: ", this.instantTempo)
+
+            // console.log("timeNote: ", timeNote)
+            // console.log("this.lastMatchTime: ", this.lastMatchTime)
+
+            this.instantTempo =
+              (this._player.currentTempo * this.delta_0) / this.delta_1
+            this.lastMatchTime = timeNote
+            this.lastPosition = this._player.position
+
             //Update arrays
             for (var k = 0; k < this._chords[0].length - 1; k++) {
               this._notes.shift()
@@ -226,7 +256,7 @@ export default class Reader {
 
       //If next event is a single note
       else if (this.notes.length > 0 && !this._chordLock) {
-        if (this._playedNotes[0] == this._notes[0][1]) {
+        if (this._playedNotes[0][1] == this._notes[0][1]) {
           if (
             this._player.isPlaying &&
             this._player.position < this._notes[0][0]
@@ -235,14 +265,28 @@ export default class Reader {
           } else {
             this._player.play()
           }
+
           this.notes.shift()
+
+          //Calculate dofference between expected and actual tempo
+          this.delta_0 = this.tickToMillisec(
+            this._player.position - this.lastPosition,
+            this._player.currentTempo,
+          )
+          this.delta_1 = this._playedNotes[0][0] - this.lastMatchTime
+          this.instantTempo =
+            (this._player.currentTempo * this.delta_0) / this.delta_1
+          this.lastMatchTime = this._playedNotes[0][0]
+          this.lastPosition = this._player.position
+          // console.log("lastMatchTime: ", this.lastMatchTime)
+          // console.log("delta0: ", this.delta_0)
+          console.log("instant tempo: ", this.instantTempo)
         } else {
           if (this._player.isPlaying) {
             // this._player.stop()
             // console.log("stop3")
           }
         }
-
         this._playedNotes.shift()
       }
     }
@@ -255,6 +299,14 @@ export default class Reader {
     if (this._chordLock) {
       this._playedNotes = []
     }
+  }
+
+  millisecToTick(ms: number, bpm: number) {
+    return (((ms / 1000) * bpm) / 60) * this.timebase
+  }
+
+  tickToMillisec(tick: number, bpm: number) {
+    return (tick / (this.timebase / 60) / bpm) * 1000
   }
 
   get song() {
