@@ -16,12 +16,24 @@ const TempoInput = styled.input`
   outline: none;
   font-family: "Roboto Mono", monospace;
   font-size: 1rem;
-  padding: 0.3rem 0;
+  padding: 0 0 0 0;
+
+  label {
+    font-size: 0.2rem;
+    color: ${({ theme }) => theme.secondaryTextColor};
+  }
 
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
+`
+
+const ToolbarSeparator = styled.div`
+  background: ${({ theme }) => theme.dividerColor};
+  margin: 0.4em 1em;
+  width: 1px;
+  height: 1rem;
 `
 
 const TempoWrapper = styled.div`
@@ -45,10 +57,11 @@ const TempoWrapper = styled.div`
 export const TempoForm: FC = observer(() => {
   const {
     song,
-    pianoRollStore: { currentTempo },
+    pianoRollStore: { playerTempo, currentTempo },
     player,
   } = useStores()
   const tempo = currentTempo ?? DEFAULT_TEMPO
+  const tempo2 = playerTempo ?? DEFAULT_TEMPO
 
   const changeTempo = (tempo: number) => {
     const fixedTempo = Math.max(1, Math.min(512, tempo))
@@ -68,13 +81,28 @@ export const TempoForm: FC = observer(() => {
 
   return (
     <TempoWrapper>
-      <label htmlFor="tempo-input">BPM</label>
+      <label htmlFor="tempo-input">Target Tempo:</label>
       <TempoInput
         type="number"
         id="tempo-input"
         min={1}
         max={1000}
         value={Math.round(tempo * 100) / 100}
+        step={1}
+        onChange={onChangeTempo}
+        onKeyPress={onKeyPressTempo}
+      />
+
+      <ToolbarSeparator />
+
+      <label htmlFor="tempo-input2"> Player Tempo:</label>
+
+      <TempoInput
+        type="number"
+        id="tempo-input2"
+        min={1}
+        max={1000}
+        value={Math.round(tempo2 * 100) / 100}
         step={1}
         onChange={onChangeTempo}
         onKeyPress={onKeyPressTempo}

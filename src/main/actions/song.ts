@@ -1,4 +1,5 @@
 import { isNotNull } from "../../common/helpers/array"
+import { Beat, createBeatsInRange } from "../../common/helpers/mapBeats"
 import { downloadSongAsMidi } from "../../common/midi/midiConversion"
 import Song, { emptySong } from "../../common/song"
 import { emptyTrack, isNoteEvent } from "../../common/track"
@@ -60,6 +61,52 @@ export const setSong2 = (rootStore: RootStore) => (song2: Song) => {
   player.stop()
   player.reset()
   player.position = 0
+
+  // Create spreadsheet from midi messages at song2:
+
+  let data: number[][] = []
+  let allBeats = createBeatsInRange(
+    song2.measures,
+    song2.timebase,
+    0,
+    song2.endOfSong,
+  )
+
+  //ISSUE TO FIX: when loading "Waving through a window" the 7th note appears incorrect
+
+  const tickToBar = (tick: number, ab: Beat[]): [number, number, number] => {
+    let array: [number, number, number] = [ab[0].measure, ab[0].beat, 0]
+    while (tick > ab[0].tick) {
+      array[0] = ab[0].measure
+      array[1] = ab[0].beat
+      ab.shift()
+    }
+    array[2] = ab[0].tick - tick
+    // console.log(
+    //   "tick: ",
+    //   tick,
+    //   "beatTick: ",
+    //   ab[0].tick,
+    //   ", bar: ",
+    //   array[0],
+    //   ", beat: ",
+    //   array[1],
+    // )
+    return array
+  }
+
+  console.log("song2.getTrack(1)?.events: ", song2.getTrack(1)?.events)
+  song2.getTrack(1)?.events.forEach((e) => {
+    if (e.type === "channel") {
+      if (e.subtype === "note") {
+        let a = tickToBar(e.tick, allBeats)
+
+        data.push(a)
+      }
+    }
+  })
+
+  console.log("data: ", data)
 }
 
 export const createSong = (rootStore: RootStore) => () => {

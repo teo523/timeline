@@ -379,6 +379,10 @@ export default class PianoRollStore {
     )
   }
 
+  get playerTempo(): number | undefined {
+    return this.rootStore.reader.playerTempo
+  }
+
   get currentMBTTime(): string {
     return getMBTString(
       this.rootStore.song2.measures,

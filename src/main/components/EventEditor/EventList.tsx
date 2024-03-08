@@ -4,6 +4,7 @@ import { isEqual } from "lodash"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useMemo, useRef, useState } from "react"
 import { FixedSizeList, ListChildComponentProps } from "react-window"
+import { tickToBar } from "../../../common/helpers/tickToBar"
 import { TrackEvent } from "../../../common/track"
 import { Localized } from "../../../components/Localized"
 import { Layout } from "../../Constants"
@@ -18,7 +19,7 @@ const Container = styled.div`
 const EventList: FC = observer(() => {
   const rootStore = useStores()
   const {
-    pianoRollStore: { selectedTrack, selectedNoteIds: selectedEventIds = [] },
+    pianoRollStore2: { selectedTrack, selectedNoteIds: selectedEventIds = [] },
   } = rootStore
 
   const events = useMemo(() => {
@@ -26,7 +27,9 @@ const EventList: FC = observer(() => {
     if (selectedEventIds.length > 0) {
       return events.filter((event) => selectedEventIds.indexOf(event.id) >= 0)
     }
-    return events
+    return events.filter(
+      (event) => event.type == "channel" && event.subtype == "note",
+    )
   }, [selectedTrack?.events, selectedEventIds])
 
   const ref = useRef<HTMLDivElement>(null)
@@ -36,17 +39,29 @@ const EventList: FC = observer(() => {
     <Container ref={ref}>
       <Header>
         <Row>
-          <Cell style={{ width: widthForCell(0) }}>
+          <Cell style={{ width: widthForCell(0), flexGrow: 1 }}>
             <Localized default="Tick">tick</Localized>
           </Cell>
           <Cell style={{ width: widthForCell(1), flexGrow: 1 }}>
-            <Localized default="Event">event</Localized>
+            <Localized default="Start">event</Localized>
           </Cell>
-          <Cell style={{ width: widthForCell(2) }}>
-            <Localized default="Duration">duration</Localized>
+          <Cell style={{ width: widthForCell(2), flexGrow: 1 }}>
+            <Localized default="End">event</Localized>
           </Cell>
-          <Cell style={{ width: widthForCell(3) }}>
-            <Localized default="Value">value</Localized>
+          <Cell style={{ width: widthForCell(3), flexGrow: 1 }}>
+            <Localized default="Note">duration</Localized>
+          </Cell>
+          <Cell style={{ width: widthForCell(4), flexGrow: 1 }}>
+            <Localized default="Velocity">value</Localized>
+          </Cell>
+          <Cell style={{ width: widthForCell(5), flexGrow: 1 }}>
+            <Localized default="Recorded Tempo">value</Localized>
+          </Cell>
+          <Cell style={{ width: widthForCell(6), flexGrow: 1 }}>
+            <Localized default="Original Tempo">value</Localized>
+          </Cell>
+          <Cell style={{ width: widthForCell(7), flexGrow: 1 }}>
+            <Localized default="Filename">value</Localized>
           </Cell>
         </Row>
       </Header>
@@ -87,7 +102,8 @@ const ItemRenderer = ({ index, style, data }: ListChildComponentProps) => {
   )
 }
 
-const widthForCell = (index: number) => ["5em", "6em", "4em", "4em"][index]
+const widthForCell = (index: number) =>
+  ["5em", "6em", "4em", "4em", "4em", "4em", "4em", "4em"][index]
 
 const Header = styled.div`
   height: ${Layout.rulerHeight};
@@ -235,10 +251,22 @@ const EventRow: FC<EventRowProps> = React.memo(
   ({ item, isSelected, style, onClick }) => {
     const rootStore = useStores()
     const {
-      pianoRollStore: { selectedTrack },
+      pianoRollStore2: { selectedTrack },
     } = rootStore
 
     const controller = getEventController(item)
+
+    //calculate bar, measure, etc...
+    let barStart = tickToBar(item.tick)
+    let barEnd: [number, number, number] = [0, 0, 0]
+    if (item.type == "channel") {
+      if (item.subtype == "note") {
+        barEnd = tickToBar(item.tick + item.duration)
+      }
+    }
+
+    let recTempo = rootStore.song.conductorTrack?.getTempo(item.tick) || 0
+    let origTempo = rootStore.song2.conductorTrack?.getTempo(item.tick) || 0
 
     const onDelete = useCallback(
       (e: TrackEvent) => {
@@ -287,7 +315,7 @@ const EventRow: FC<EventRowProps> = React.memo(
         )}
         tabIndex={-1}
       >
-        <Cell style={{ width: widthForCell(0) }}>{item.tick}</Cell>
+        <Cell style={{ width: widthForCell(0), flexGrow: 1 }}>{item.tick}</Cell>
         <Cell
           style={{
             width: widthForCell(1),
@@ -297,19 +325,21 @@ const EventRow: FC<EventRowProps> = React.memo(
             overflow: "hidden",
           }}
         >
-          {controller.name}
+          {barStart[0] + 1 + "." + (barStart[1] + 1) + "." + barStart[2]}
         </Cell>
-        {controller.gate === undefined ? (
-          <DisabledInputCell style={{ width: widthForCell(2) }} />
-        ) : (
-          <InputCell
-            style={{ width: widthForCell(2) }}
-            {...controller.gate}
-            onChange={onChangeGate}
-          />
-        )}
+        <Cell
+          style={{
+            width: widthForCell(1),
+            flexGrow: 1,
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {barEnd[0] + 1 + "." + (barEnd[1] + 1) + "." + barEnd[2]}
+        </Cell>
         {controller.value === undefined ? (
-          <DisabledInputCell style={{ width: widthForCell(3) }} />
+          <DisabledInputCell style={{ width: widthForCell(3), flexGrow: 1 }} />
         ) : (
           <InputCell
             style={{ width: widthForCell(3) }}
@@ -317,6 +347,48 @@ const EventRow: FC<EventRowProps> = React.memo(
             onChange={onChangeValue}
           />
         )}
+        {controller.gate === undefined ? (
+          <DisabledInputCell style={{ width: widthForCell(2), flexGrow: 1 }} />
+        ) : (
+          <InputCell
+            style={{ width: widthForCell(2) }}
+            {...controller.gate}
+            onChange={onChangeGate}
+          />
+        )}
+        <Cell
+          style={{
+            width: widthForCell(1),
+            flexGrow: 1,
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {Math.trunc(recTempo)}
+        </Cell>
+        <Cell
+          style={{
+            width: widthForCell(1),
+            flexGrow: 1,
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {Math.trunc(origTempo)}
+        </Cell>
+        <Cell
+          style={{
+            width: widthForCell(1),
+            flexGrow: 1,
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {"none"}
+        </Cell>
       </Row>
     )
   },

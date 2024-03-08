@@ -43,13 +43,13 @@ export function getEventController<T extends TrackEvent>(
             name: e.subtype,
             value: {
               type: "number",
-              value: e.velocity,
-              update: (velocity) => ({ velocity }),
+              value: e.noteNumber,
+              update: (noteNumber) => ({ noteNumber }),
             },
             gate: {
               type: "number",
-              value: e.duration,
-              update: (duration) => ({ duration }),
+              value: e.velocity,
+              update: (velocity) => ({ velocity }),
             },
           }
         case "programChange":

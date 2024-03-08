@@ -23,6 +23,13 @@ export class GroupOutput implements SynthOutput {
         if (event.subtype == "noteOn" || event.subtype == "noteOff") {
           o.synth.sendEvent(event, delayTime, timestampNow)
           console.log(event.subtype, event.noteNumber, event.velocity)
+        } else if (
+          event.type == "channel" &&
+          event.subtype == "controller" &&
+          event.controllerType == 103
+        ) {
+          o.synth.sendEvent(event, delayTime, timestampNow)
+          console.log(event)
         }
       })
   }

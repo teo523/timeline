@@ -3,7 +3,6 @@ import FastForward from "mdi-react/FastForwardIcon"
 import FastRewind from "mdi-react/FastRewindIcon"
 import FiberManualRecord from "mdi-react/FiberManualRecordIcon"
 import Loop from "mdi-react/LoopIcon"
-import MetronomeIcon from "mdi-react/MetronomeIcon"
 import Stop from "mdi-react/StopIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
@@ -149,12 +148,12 @@ export const TransportPanel: FC = observer(() => {
 
       <ToolbarSeparator />
 
-      <MetronomeButton
+      {/* <MetronomeButton
         onClick={onClickMetronone}
         className={isMetronomeEnabled ? "active" : undefined}
       >
         <MetronomeIcon />
-      </MetronomeButton>
+      </MetronomeButton> */}
 
       <TempoForm />
 
