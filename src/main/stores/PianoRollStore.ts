@@ -377,19 +377,19 @@ export default class PianoRollStore {
   }
 
   get currentTempo(): number | undefined {
-    console.log(
-      "currentTempo(): ",
-      this.rootStore.song.conductorTrack?.getTempo(
-        this.rootStore.player.position,
-      ),
-    )
+    // console.log(
+    //   "currentTempo(): ",
+    //   this.rootStore.song.conductorTrack?.getTempo(
+    //     this.rootStore.player.position,
+    //   ),
+    // )
     return this.rootStore.song.conductorTrack?.getTempo(
       this.rootStore.player.position,
     )
   }
 
   get playerTempo(): number | undefined {
-    console.log("a")
+    // console.log("a")
     return this.rootStore.reader.playerTempo
   }
 

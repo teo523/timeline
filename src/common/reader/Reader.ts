@@ -82,6 +82,7 @@ export default class Reader {
 
       if (message.subtype == "noteOn") {
         // console.log("this._out: ", this._out)
+        this._playedNotes.push([performance.now(), message.noteNumber])
         if (this._lastPlayedNote == 0) {
           this._lastPlayedNote = performance.now()
         } else {
@@ -417,6 +418,12 @@ export default class Reader {
   }
 
   private _directControl() {
+    console.log(
+      "this._playedNotes: ",
+      this._playedNotes,
+      ", this._notes: ",
+      this._notes,
+    )
     // move reader position
     this._currentTick = this._player.position
     //if (this._playedNotes[0] === nextNotes[0][1])
@@ -515,6 +522,7 @@ export default class Reader {
       //If next event is a single note
       else if (this.notes.length > 0 && !this._chordLock) {
         if (this._playedNotes[0][1] == this._notes[0][1]) {
+          console.log("playedNextNote!")
           if (
             this._player.isPlaying &&
             this._player.position < this._notes[0][0]
