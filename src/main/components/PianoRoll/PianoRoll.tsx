@@ -49,25 +49,31 @@ const PianoRollWrapper: FC = observer(() => {
   const alphaRef = useRef(null)
   const { height: alphaHeight = 0 } = useComponentSize(alphaRef)
 
-  const onClickScaleUpHorizontal = useCallback(
-    () => s.scaleAroundPointX(0.2, Layout.keyWidth),
-    [s.scaleX, s],
-  )
-  const onClickScaleDownHorizontal = useCallback(
-    () => s.scaleAroundPointX(-0.2, Layout.keyWidth),
-    [s.scaleX, s],
-  )
-  const onClickScaleResetHorizontal = useCallback(() => (s.scaleX = 1), [s])
+  const onClickScaleUpHorizontal = useCallback(() => {
+    s.scaleAroundPointX(0.2, Layout.keyWidth)
+    s2.scaleAroundPointX(0.2, Layout.keyWidth)
+  }, [s.scaleX, s])
+  const onClickScaleDownHorizontal = useCallback(() => {
+    s.scaleAroundPointX(-0.2, Layout.keyWidth)
+    s2.scaleAroundPointX(-0.2, Layout.keyWidth)
+  }, [s.scaleX, s])
+  const onClickScaleResetHorizontal = useCallback(() => {
+    s.scaleX = 1
+    s2.scaleX = 1
+  }, [s])
 
-  const onClickScaleUpVertical = useCallback(
-    () => s.scaleAroundPointY(0.2, 0),
-    [s.scaleY, s],
-  )
-  const onClickScaleDownVertical = useCallback(
-    () => s.scaleAroundPointY(-0.2, 0),
-    [s.scaleY, s],
-  )
-  const onClickScaleResetVertical = useCallback(() => (s.scaleY = 1), [s])
+  const onClickScaleUpVertical = useCallback(() => {
+    s.scaleAroundPointY(0.2, 0)
+    s2.scaleAroundPointY(0.2, 0)
+  }, [s.scaleY, s])
+  const onClickScaleDownVertical = useCallback(() => {
+    s.scaleAroundPointY(-0.2, 0)
+    s2.scaleAroundPointY(-0.2, 0)
+  }, [s.scaleY, s])
+  const onClickScaleResetVertical = useCallback(() => {
+    s.scaleY = 1
+    s2.scaleY = 1
+  }, [s])
 
   const onWheel = useCallback(
     (e: React.WheelEvent) => {
@@ -126,7 +132,7 @@ const PianoRollWrapper: FC = observer(() => {
           <VerticalScaleScrollBar
             scrollOffset={s2.scrollTop}
             contentLength={s2.contentHeight}
-            onScroll={useCallback((v: any) => s2.setScrollTopInPixels(v), [s])}
+            onScroll={useCallback((v: any) => s2.setScrollTopInPixels(v), [s2])}
             onClickScaleUp={onClickScaleUpVertical}
             onClickScaleDown={onClickScaleDownVertical}
             onClickScaleReset={onClickScaleResetVertical}
@@ -137,6 +143,15 @@ const PianoRollWrapper: FC = observer(() => {
         scrollOffset={s.scrollLeft}
         contentLength={s.contentWidth}
         onScroll={useCallback((v: any) => s.setScrollLeftInPixels(v), [s])}
+        onClickScaleUp={onClickScaleUpHorizontal}
+        onClickScaleDown={onClickScaleDownHorizontal}
+        onClickScaleReset={onClickScaleResetHorizontal}
+      />
+
+      <HorizontalScaleScrollBar
+        scrollOffset={s2.scrollLeft}
+        contentLength={s2.contentWidth}
+        onScroll={useCallback((v: any) => s2.setScrollLeftInPixels(v), [s2])}
         onClickScaleUp={onClickScaleUpHorizontal}
         onClickScaleDown={onClickScaleDownHorizontal}
         onClickScaleReset={onClickScaleResetHorizontal}

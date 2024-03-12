@@ -2,16 +2,10 @@ import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
 import { useStores } from "../../hooks/useStores"
-import InstrumentBrowser from "../InstrumentBrowser/InstrumentBrowser"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
-import QuantizeSelector from "../Toolbar/QuantizeSelector/QuantizeSelector"
 import { Toolbar } from "../Toolbar/Toolbar"
-import { TrackListMenuButton } from "../TrackList/TrackListMenuButton"
 import { EventListButton } from "./EventListButton"
-import { InstrumentButton } from "./InstrumentButton"
-import { PanSlider } from "./PanSlider"
 import { PianoRollToolSelector } from "./PianoRollToolSelector"
-import { TrackNameInput } from "./TrackNameInput"
 import { VolumeSlider } from "./VolumeSlider"
 
 const Spacer = styled.div`
@@ -23,7 +17,7 @@ const FlexibleSpacer = styled.div`
 `
 
 export const PianoRollToolbar: FC = observer(() => {
-  const { pianoRollStore } = useStores()
+  const { pianoRollStore, pianoRollStore2 } = useStores()
 
   const {
     quantize,
@@ -33,10 +27,10 @@ export const PianoRollToolbar: FC = observer(() => {
     selectedTrackId,
   } = pianoRollStore
 
-  const onClickAutoScroll = useCallback(
-    () => (pianoRollStore.autoScroll = !pianoRollStore.autoScroll),
-    [pianoRollStore],
-  )
+  const onClickAutoScroll = useCallback(() => {
+    pianoRollStore.autoScroll = !pianoRollStore.autoScroll
+    pianoRollStore2.autoScroll = !pianoRollStore2.autoScroll
+  }, [pianoRollStore, pianoRollStore2])
 
   const onSelectQuantize = useCallback(
     (denominator: number) => {
@@ -55,30 +49,29 @@ export const PianoRollToolbar: FC = observer(() => {
 
   return (
     <Toolbar>
-      <TrackListMenuButton />
+      {/* <TrackListMenuButton /> */}
 
-      <TrackNameInput />
+      {/* <TrackNameInput /> */}
 
       <EventListButton />
 
+      {/* <InstrumentButton />
+      <InstrumentBrowser /> */}
+
       <Spacer />
-
-      <InstrumentButton />
-      <InstrumentBrowser />
-
       <VolumeSlider trackId={selectedTrackId} />
-      <PanSlider trackId={selectedTrackId} />
+      {/* <PanSlider trackId={selectedTrackId} /> */}
 
       <FlexibleSpacer />
 
       <PianoRollToolSelector />
 
-      <QuantizeSelector
+      {/* <QuantizeSelector
         value={quantize}
         enabled={isQuantizeEnabled}
         onSelect={onSelectQuantize}
         onClickSwitch={onClickQuantizeSwitch}
-      />
+      /> */}
 
       <AutoScrollButton onClick={onClickAutoScroll} selected={autoScroll} />
     </Toolbar>

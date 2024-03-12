@@ -17,7 +17,7 @@ export const playOrPause =
   }
 
 export const stop =
-  ({ player, pianoRollStore }: RootStore) =>
+  ({ player, pianoRollStore, pianoRollStore2 }: RootStore) =>
   () => {
     player.stop()
     player.position = 0
@@ -31,7 +31,7 @@ const defaultTimeSignature = {
 }
 
 export const rewindOneBar =
-  ({ song, player, pianoRollStore }: RootStore) =>
+  ({ song, player, pianoRollStore, pianoRollStore2 }: RootStore) =>
   () => {
     const e =
       song.conductorTrack?.getTimeSignatureEvent(player.position) ??
@@ -64,10 +64,14 @@ export const rewindOneBar =
     if (player.position < pianoRollStore.scrollLeftTicks) {
       pianoRollStore.setScrollLeftInTicks(player.position)
     }
+
+    if (player.position < pianoRollStore2.scrollLeftTicks) {
+      pianoRollStore2.setScrollLeftInTicks(player.position)
+    }
   }
 
 export const fastForwardOneBar = (rootStore: RootStore) => () => {
-  const { song, player, pianoRollStore } = rootStore
+  const { song, player, pianoRollStore, pianoRollStore2 } = rootStore
   const { quantizer } = pianoRollStore
 
   const e =
@@ -79,10 +83,20 @@ export const fastForwardOneBar = (rootStore: RootStore) => () => {
 
   // make sure player doesn't move out of sight to the right
   const { transform, scrollLeft } = pianoRollStore
+  const { transform: t2, scrollLeft: sc2 } = pianoRollStore2
+
   const x = transform.getX(player.position)
   const screenX = x - scrollLeft
   if (screenX > pianoRollStore.canvasWidth * 0.7) {
     pianoRollStore.setScrollLeftInPixels(x - pianoRollStore.canvasWidth * 0.7)
+  }
+
+  const x2 = t2.getX(player.position)
+  const screenX2 = x2 - sc2
+  if (screenX2 > pianoRollStore2.canvasWidth * 0.7) {
+    pianoRollStore2.setScrollLeftInPixels(
+      x2 - pianoRollStore2.canvasWidth * 0.7,
+    )
   }
 }
 

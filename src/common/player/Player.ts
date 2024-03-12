@@ -82,6 +82,7 @@ export default class Player {
       console.warn("called play() while playing. aborted.")
       return
     }
+    console.log("Tempo:", this._currentTempo)
     this._scheduler = new EventScheduler<PlayerEvent>(
       (startTick, endTick) =>
         filterEventsWithRange(this.song.allEvents, startTick, endTick),
