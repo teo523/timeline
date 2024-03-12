@@ -51,7 +51,6 @@ export default class Reader {
   instantTempo = 120
   delta_0 = 0
   delta_1 = 0
-  playerTempo = 120
 
   //[tick of input note, expected time for input note to happen]
   private _expectedIn: number[][] = []
@@ -116,7 +115,6 @@ export default class Reader {
               const average = sum / this._liveTempo.length
               this._averageTempo = average
               console.log("averageTempo: ", this._averageTempo)
-              this.playerTempo = this._averageTempo
             }
             this._lastPlayedTick = this._expectedIn[0][0]
             this._lastPlayedNote = performance.now()
@@ -295,9 +293,9 @@ export default class Reader {
 
     this._handler = new EventHandler()
     if (this.directMode) {
-      this._interval = window.setInterval(() => this._playOutNotes(), 30)
+      this._interval = window.setInterval(() => this._directControl(), 30)
     } else {
-      this._interval = window.setInterval(() => this.listenEvents(), 30)
+      this._interval = window.setInterval(() => this._autoControl(), 30)
     }
 
     // const nextNote = null
@@ -418,7 +416,7 @@ export default class Reader {
     }
   }
 
-  private listenEvents() {
+  private _directControl() {
     // move reader position
     this._currentTick = this._player.position
     //if (this._playedNotes[0] === nextNotes[0][1])
@@ -576,6 +574,10 @@ export default class Reader {
     return this._isPlaying
   }
 
+  get playerTempo() {
+    return this._averageTempo
+  }
+
   private get timebase() {
     return this.song.timebase
   }
@@ -588,7 +590,7 @@ export default class Reader {
     return (((ms / 1000) * bpm) / 60) * this.timebase
   }
 
-  _playOutNotes() {
+  _autoControl() {
     const output = this._output
 
     this._noteTimeOut = this._noteTimeIn = performance.now()
