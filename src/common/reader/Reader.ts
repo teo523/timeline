@@ -43,7 +43,7 @@ export default class Reader {
   private _tolerance = 50
   private _chordLock = false
   private _chordCounter = 0
-  private _directMode: boolean = true
+  private _directMode: boolean = false
 
   //Assuming files with resolution of 960
   lastMatchTime = 0
@@ -291,7 +291,7 @@ export default class Reader {
     this._lastTime = this._startTime
     this._initialPosition = this._player.position
 
-    // console.log("play")
+    console.log("play")
     this._playerOn = true
     this.allNotes()
     this._notes = this.getNextNotes()
@@ -424,6 +424,7 @@ export default class Reader {
   }
 
   private _directControl() {
+    console.log("DC")
     // move reader position
     this._currentTick = this._player.position
     //if (this._playedNotes[0] === nextNotes[0][1])
@@ -449,11 +450,13 @@ export default class Reader {
       this.notes[0][0] - 30 <= this._currentTick
     ) {
       this._playerOn = false
+      this._player.stop()
       console.log("s1")
       // console.log("this.notes[0][0]: ", this.notes[0][0])
       // console.log("this._currentTick : ", this._currentTick)
     }
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
+      console.log("this._playedNotes1: ", this._playedNotes)
       //if next event is a chord
       if (this._chords.length > 0 && this._chords[0][0] <= this.notes[0][0]) {
         console.log("s2")
@@ -479,21 +482,21 @@ export default class Reader {
             }
 
             //Calculate dofference between expected and actual tempo
-            this.delta_0 = this.tickToMillisec(
-              this._player.position - this.lastPosition,
-              this._player.currentTempo,
-            )
-            this.delta_1 = timeNote - this.lastMatchTime
+            // this.delta_0 = this.tickToMillisec(
+            //   this._player.position - this.lastPosition,
+            //   this._player.currentTempo,
+            // )
+            // this.delta_1 = timeNote - this.lastMatchTime
 
-            console.log("instant tempo: ", this.instantTempo)
+            // console.log("instant tempo: ", this.instantTempo)
 
-            // console.log("timeNote: ", timeNote)
-            // console.log("this.lastMatchTime: ", this.lastMatchTime)
+            // // console.log("timeNote: ", timeNote)
+            // // console.log("this.lastMatchTime: ", this.lastMatchTime)
 
-            this.instantTempo =
-              (this._player.currentTempo * this.delta_0) / this.delta_1
-            this.lastMatchTime = timeNote
-            this.lastPosition = this._player.position
+            // this.instantTempo =
+            //   (this._player.currentTempo * this.delta_0) / this.delta_1
+            // this.lastMatchTime = timeNote
+            // this.lastPosition = this._player.position
 
             //Update arrays
             for (var k = 0; k < this._chords[0].length - 1; k++) {
@@ -532,20 +535,23 @@ export default class Reader {
             this._player.position = this.notes[0][0] - 2
           } else {
             this._playerOn = true
+            this.play()
           }
 
           this.notes.shift()
 
           //Calculate dofference between expected and actual tempo
-          this.delta_0 = this.tickToMillisec(
-            this._player.position - this.lastPosition,
-            this._player.currentTempo,
-          )
-          this.delta_1 = this._playedNotes[0][0] - this.lastMatchTime
-          this.instantTempo =
-            (this._player.currentTempo * this.delta_0) / this.delta_1
-          this.lastMatchTime = this._playedNotes[0][0]
-          this.lastPosition = this._player.position
+          // this.delta_0 = this.tickToMillisec(
+          //   this._player.position - this.lastPosition,
+          //   this._player.currentTempo,
+          // )
+          // console.log("this._playedNotes: ", this._playedNotes)
+
+          // this.delta_1 = this._playedNotes[0][0] - this.lastMatchTime
+          // this.instantTempo =
+          //   (this._player.currentTempo * this.delta_0) / this.delta_1
+          // this.lastMatchTime = this._playedNotes[0][0]
+          // this.lastPosition = this._player.position
           // console.log("lastMatchTime: ", this.lastMatchTime)
           // console.log("delta0: ", this.delta_0)
           console.log("instant tempo: ", this.instantTempo)
