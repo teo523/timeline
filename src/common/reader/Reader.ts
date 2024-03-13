@@ -295,7 +295,7 @@ export default class Reader {
     this._playerOn = true
     this.allNotes()
     this._notes = this.getNextNotes()
-    //this._chords = this.getChords(this.notes)
+    this._chords = this.getChords(this.notes)
     this._playedNotes = []
 
     this._handler = new EventHandler()
@@ -336,7 +336,26 @@ export default class Reader {
   private getNextNotes() {
     return this.notes.filter((value) => value[0] > this._currentTick)
   }
-
+  private getChords(notes: [number, number][]) {
+    var chords: number[][] = []
+    var chordActivated = false
+    notes.forEach(function (value, idx) {
+      if (idx > 0) {
+        if (notes[idx][0] == notes[idx - 1][0]) {
+          if (chordActivated) {
+            chords[chords.length - 1].push(notes[idx][1])
+          } else {
+            chords.push([notes[idx - 1][0], notes[idx - 1][1], notes[idx][1]])
+            chordActivated = true
+          }
+        } else {
+          chordActivated = false
+        }
+      }
+    })
+    console.log("chords: ", chords)
+    return chords
+  }
   private groupNotesInput(notes: [number, number][]) {
     var chords: number[][] = []
     var chordActivated = false
@@ -425,6 +444,9 @@ export default class Reader {
 
   private _directControl() {
     console.log("DC")
+    console.log("this.notes[0][0]: ", this.notes[0][0])
+    console.log("this.notes[0][1]: ", this.notes[0][1])
+    console.log("this._currentTick : ", this._currentTick)
     // move reader position
     this._currentTick = this._player.position
     //if (this._playedNotes[0] === nextNotes[0][1])
@@ -452,8 +474,6 @@ export default class Reader {
       this._playerOn = false
       this._player.stop()
       console.log("s1")
-      // console.log("this.notes[0][0]: ", this.notes[0][0])
-      // console.log("this._currentTick : ", this._currentTick)
     }
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
       console.log("this._playedNotes1: ", this._playedNotes)
@@ -478,6 +498,7 @@ export default class Reader {
             }
             //If not playing, then play
             else {
+              this._playerOn = true
               this._player.play()
             }
 
@@ -535,7 +556,7 @@ export default class Reader {
             this._player.position = this.notes[0][0] - 2
           } else {
             this._playerOn = true
-            this.play()
+            this._player.play()
           }
 
           this.notes.shift()
