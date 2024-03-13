@@ -43,7 +43,7 @@ export default class Reader {
   private _tolerance = 50
   private _chordLock = false
   private _chordCounter = 0
-  private directMode: boolean = true
+  private _directMode: boolean = true
 
   //Assuming files with resolution of 960
   lastMatchTime = 0
@@ -81,12 +81,18 @@ export default class Reader {
       //check if there are recent notes and put them together
 
       if (message.subtype == "noteOn") {
+        console.log(
+          "this._playedNotes: ",
+          this._playedNotes,
+          ", this._notes: ",
+          this._notes,
+        )
         // console.log("this._out: ", this._out)
         this._playedNotes.push([performance.now(), message.noteNumber])
         if (this._lastPlayedNote == 0) {
           this._lastPlayedNote = performance.now()
         } else {
-          console.log("HERE ", this._expectedIn)
+          // console.log("HERE ", this._expectedIn)
           if (
             this._expectedIn.length > 0 &&
             Math.abs(this._expectedIn[0][0] - this._player.position) < 500 &&
@@ -240,6 +246,7 @@ export default class Reader {
 
     output.sort(([a, b, c], [d, e, f]) => a - d || b - e)
 
+    this._notes = input
     this._in = this.groupNotesInput(input)
     //this.in = [[0,23],[960,21],[21112,23,44,60],...]
 
@@ -275,7 +282,6 @@ export default class Reader {
       console.warn("called play() while playing. aborted.")
       return
     }
-
     // console.log("init:", this._player.position)
     this._currentTick = this._player.position
     this._startTime = performance.now()
@@ -293,7 +299,7 @@ export default class Reader {
     this._playedNotes = []
 
     this._handler = new EventHandler()
-    if (this.directMode) {
+    if (!this.directMode) {
       this._interval = window.setInterval(() => this._directControl(), 30)
     } else {
       this._interval = window.setInterval(() => this._autoControl(), 30)
@@ -418,12 +424,6 @@ export default class Reader {
   }
 
   private _directControl() {
-    console.log(
-      "this._playedNotes: ",
-      this._playedNotes,
-      ", this._notes: ",
-      this._notes,
-    )
     // move reader position
     this._currentTick = this._player.position
     //if (this._playedNotes[0] === nextNotes[0][1])
@@ -449,13 +449,14 @@ export default class Reader {
       this.notes[0][0] - 30 <= this._currentTick
     ) {
       this._playerOn = false
-      // console.log("stop1")
+      console.log("s1")
       // console.log("this.notes[0][0]: ", this.notes[0][0])
       // console.log("this._currentTick : ", this._currentTick)
     }
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
       //if next event is a chord
       if (this._chords.length > 0 && this._chords[0][0] <= this.notes[0][0]) {
+        console.log("s2")
         if (!this._chordLock) {
           // console.log("nextEvent is chord")
           // console.log(this._playedNotes)
@@ -521,6 +522,7 @@ export default class Reader {
 
       //If next event is a single note
       else if (this.notes.length > 0 && !this._chordLock) {
+        console.log("s3")
         if (this._playedNotes[0][1] == this._notes[0][1]) {
           console.log("playedNextNote!")
           if (
@@ -633,9 +635,8 @@ export default class Reader {
       let note = 0
 
       //Calculate the ratio between real and original tempo
-      let ratio = Math.min(
-        (100 * this._averageTempo) / this._player.currentTempo,
-        127,
+      let ratio = Math.trunc(
+        Math.min((100 * this._averageTempo) / this._player.currentTempo, 127),
       )
 
       this._out[0].forEach(function (msg, idx) {
@@ -718,5 +719,14 @@ export default class Reader {
   set tolerance(tol: number) {
     this._tolerance = tol
     console.log("tol", tol)
+  }
+
+  get directMode() {
+    return this._directMode
+  }
+
+  set directMode(dc: boolean) {
+    this._directMode = dc
+    console.log("dc: ", dc)
   }
 }
