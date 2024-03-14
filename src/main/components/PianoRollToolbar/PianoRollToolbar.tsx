@@ -79,7 +79,7 @@ export const PianoRollToolbar: FC = observer(() => {
   const [checked, setChecked] = useState(false)
   const handleChange = (nextChecked: boolean) => {
     setChecked(nextChecked)
-    reader.directMode = nextChecked
+    reader.autoMode = nextChecked
   }
 
   const onClickQuantizeSwitch = useCallback(() => {

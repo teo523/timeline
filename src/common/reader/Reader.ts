@@ -38,12 +38,12 @@ export default class Reader {
   private _lastPlayedTick = 0
   private _prevNoteTime = 0
   private _liveTempo: number[] = []
-  private _averageTempo: number = 120
+  private _averageTempo: number
   private _playedNotes: number[][] = []
   private _tolerance = 50
   private _chordLock = false
   private _chordCounter = 0
-  private _directMode: boolean = false
+  private _autoMode: boolean = false
 
   //Assuming files with resolution of 960
   lastMatchTime = 0
@@ -81,12 +81,12 @@ export default class Reader {
       //check if there are recent notes and put them together
 
       if (message.subtype == "noteOn") {
-        console.log(
-          "this._playedNotes: ",
-          this._playedNotes,
-          ", this._notes: ",
-          this._notes,
-        )
+        // console.log(
+        //   "this._playedNotes: ",
+        //   this._playedNotes,
+        //   ", this._notes: ",
+        //   this._notes,
+        // )
         // console.log("this._out: ", this._out)
         this._playedNotes.push([performance.now(), message.noteNumber])
         if (this._lastPlayedNote == 0) {
@@ -105,15 +105,22 @@ export default class Reader {
             let delta1 = performance.now() - this._lastPlayedNote
 
             let tmp = (this._player.currentTempo * delta0) / delta1
-            console.log("delta0: ", delta0)
-            console.log("delta1: ", delta1)
-            console.log("instant tempo: ", tmp)
-            console.log("performance.now(): ", performance.now())
-            console.log("this._lastPlayedNote: ", this._lastPlayedNote)
+
+            //bound values to +/- 20% around the currentTempo
+            tmp = Math.max(
+              Math.min(1.2 * this._player.currentTempo, tmp),
+              0.8 * this._player.currentTempo,
+            )
+
+            // console.log("delta0: ", delta0)
+            // console.log("delta1: ", delta1)
+            // console.log("instant tempo: ", tmp)
+            // console.log("performance.now(): ", performance.now())
+            // console.log("this._lastPlayedNote: ", this._lastPlayedNote)
 
             this._liveTempo.push(tmp)
 
-            if (this._liveTempo.length > 3) {
+            if (this._liveTempo.length > 4) {
               this._liveTempo.shift()
               let sum = 0
               for (let i = 0; i < this._liveTempo.length; i++) {
@@ -121,9 +128,17 @@ export default class Reader {
               }
               const average = sum / this._liveTempo.length
               this._averageTempo = average
-              console.log("averageTempo: ", this._averageTempo)
+              // console.log("averageTempo: ", this._averageTempo)
             }
             this._lastPlayedTick = this._expectedIn[0][0]
+
+            //Define the level of autonomy through tolerance slider
+            if (this.autoMode) {
+              this._player.position = Math.round(
+                (this._tolerance / 100) * this._player.position +
+                  (1 - this._tolerance / 100) * this._expectedIn[0][0],
+              )
+            }
             this._lastPlayedNote = performance.now()
             this._expectedIn.shift()
           }
@@ -290,6 +305,7 @@ export default class Reader {
     this._lastTick = this._currentTick
     this._lastTime = this._startTime
     this._initialPosition = this._player.position
+    this._averageTempo = this._player.currentTempo
 
     console.log("play")
     this._playerOn = true
@@ -299,7 +315,7 @@ export default class Reader {
     this._playedNotes = []
 
     this._handler = new EventHandler()
-    if (!this.directMode) {
+    if (!this.autoMode) {
       this._interval = window.setInterval(() => this._directControl(), 30)
     } else {
       this._interval = window.setInterval(() => this._autoControl(), 30)
@@ -748,12 +764,12 @@ export default class Reader {
     console.log("tol", tol)
   }
 
-  get directMode() {
-    return this._directMode
+  get autoMode() {
+    return this._autoMode
   }
 
-  set directMode(dc: boolean) {
-    this._directMode = dc
+  set autoMode(dc: boolean) {
+    this._autoMode = dc
     console.log("dc: ", dc)
   }
 }
