@@ -293,6 +293,17 @@ export const setTrackVolume =
     }
   }
 
+export const setTrackVolume2 =
+  ({ song, player, pushHistory, reader }: RootStore) =>
+  (trackId: number, volume: number) => {
+    pushHistory()
+    //Couldn't get it work other way, that's why it's here, so it gets re-rendered
+    // reader.tolerance = volume
+    reader.timeRange = volume
+    const track = song.tracks[trackId]
+    track.setVolume(volume, player.position)
+  }
+
 export const setTrackPan =
   ({ song, player, pushHistory }: RootStore) =>
   (trackId: number, pan: number) => {

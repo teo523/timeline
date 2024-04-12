@@ -2,9 +2,9 @@ import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback } from "react"
 import { Slider } from "../../../components/Slider"
-import { setTrackVolume } from "../../actions"
+import { setTrackVolume2 } from "../../actions"
 import { useStores } from "../../hooks/useStores"
-import chordIcon from "../../images/chordIcon.svg"
+import chordIcon from "../../images/timeBracket.svg"
 
 const Container = styled.div`
   -webkit-appearance: none;
@@ -47,32 +47,32 @@ export interface VolumeSliderProps {
   trackId: number
 }
 
-const _VolumeSlider: FC<VolumeSliderProps> = observer(({ trackId }) => {
+const _TimeSlider: FC<VolumeSliderProps> = observer(({ trackId }) => {
   const rootStore = useStores()
   const {
-    pianoRollStore: { currentVolume },
+    pianoRollStore: { currentVolume2 },
     reader,
   } = rootStore
-  const volume = reader.tolerance ?? 50
+  const volume = reader.timeRange ?? 500
   const onChange = useCallback(
     (value: number) => {
-      setTrackVolume(rootStore)(trackId, value)
+      setTrackVolume2(rootStore)(trackId, value)
     },
     [rootStore, trackId],
   )
   return (
     <Container>
       <VolumeIcon />
-      <Monitor className="monitorText">{reader.tolerance + "%"}</Monitor>
+      <Monitor className="monitorText">{reader.timeRange + "ms"}</Monitor>
 
       <Slider
         value={volume}
         onChange={(value) => onChange(value)}
-        max={100}
-        minStepsBetweenThumbs={1}
+        max={1000}
+        minStepsBetweenThumbs={10}
       />
     </Container>
   )
 })
 
-export const VolumeSlider = React.memo(_VolumeSlider)
+export const TimeSlider = React.memo(_TimeSlider)

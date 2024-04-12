@@ -22,14 +22,14 @@ export class GroupOutput implements SynthOutput {
       .forEach((o) => {
         if (event.subtype == "noteOn" || event.subtype == "noteOff") {
           o.synth.sendEvent(event, delayTime, timestampNow)
-          console.log(event.subtype, event.noteNumber, event.velocity)
+          // console.log(event.subtype, event.noteNumber, event.velocity)
         } else if (
           event.type == "channel" &&
           event.subtype == "controller" &&
-          event.controllerType == 103
+          event.controllerType == 119
         ) {
           o.synth.sendEvent(event, delayTime, timestampNow)
-          console.log(event)
+          // console.log(event)
         }
       })
   }

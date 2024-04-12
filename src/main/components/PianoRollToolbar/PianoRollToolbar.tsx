@@ -7,6 +7,7 @@ import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
 import { Toolbar } from "../Toolbar/Toolbar"
 import { EventListButton } from "./EventListButton"
 import { PianoRollToolSelector } from "./PianoRollToolSelector"
+import { TimeSlider } from "./TimeSlider"
 import { VolumeSlider } from "./VolumeSlider"
 
 const Container = styled.div`
@@ -97,13 +98,9 @@ export const PianoRollToolbar: FC = observer(() => {
       {/* <TrackNameInput /> */}
 
       <EventListButton />
-
+      <Spacer />
       {/* <InstrumentButton />
       <InstrumentBrowser /> */}
-
-      <Spacer />
-      <VolumeSlider trackId={selectedTrackId} />
-      <Spacer />
       <Container>
         <p>Direct </p>
         <Switch
@@ -122,9 +119,15 @@ export const PianoRollToolbar: FC = observer(() => {
 
         <p> Auto </p>
       </Container>
-      {/* <PanSlider trackId={selectedTrackId} /> */}
 
-      <FlexibleSpacer />
+      <Spacer />
+      <VolumeSlider trackId={selectedTrackId} />
+
+      <Spacer />
+      <TimeSlider trackId={selectedTrackId} />
+      <Spacer />
+
+      {/* <PanSlider trackId={selectedTrackId} /> */}
 
       <PianoRollToolSelector />
 

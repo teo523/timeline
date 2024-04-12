@@ -97,6 +97,7 @@ export default class PianoRollStore {
       ghostNotes: computed,
       selectionBounds: computed,
       currentVolume: computed,
+      currentVolume2: computed,
       currentPan: computed,
       currentTempo: computed,
       playerTempo: computed,
@@ -372,6 +373,10 @@ export default class PianoRollStore {
     return this.selectedTrack?.getVolume(this.rootStore.player.position)
   }
 
+  get currentVolume2(): number | undefined {
+    return this.selectedTrack?.getVolume(this.rootStore.player.position)
+  }
+
   get currentPan(): number | undefined {
     return this.selectedTrack?.getPan(this.rootStore.player.position)
   }
@@ -383,9 +388,18 @@ export default class PianoRollStore {
     //     this.rootStore.player.position,
     //   ),
     // )
-    return this.rootStore.song.conductorTrack?.getTempo(
-      this.rootStore.player.position,
-    )
+    let prevTempo = this.rootStore.player.currentTempo
+    let tempo =
+      this.rootStore.song.conductorTrack?.getTempo(
+        this.rootStore.player.position,
+      ) || 120
+
+    this.rootStore.player.currentTempo = tempo
+    if (prevTempo != tempo) {
+      // console.log("deleteLiveTempo")
+      this.rootStore.reader.deleteLiveTempo()
+    }
+    return tempo
   }
 
   get playerTempo(): number | undefined {

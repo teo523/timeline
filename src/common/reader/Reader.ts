@@ -41,6 +41,7 @@ export default class Reader {
   private _averageTempo: number
   private _playedNotes: number[][] = []
   private _tolerance = 50
+  private _timeRange = 100
   private _chordLock = false
   private _chordCounter = 0
   private _autoMode: boolean = false
@@ -267,7 +268,7 @@ export default class Reader {
 
     this._out = this.groupNotesOutput(output)
     this._expectedIn = this._in
-    console.log("this._expectedIn: ", this._expectedIn)
+    // console.log("this._expectedIn: ", this._expectedIn)
 
     // console.log("groupedIn: ", this._in)
     // console.log("groupedOut: ", this._out)
@@ -631,6 +632,13 @@ export default class Reader {
     return this._averageTempo
   }
 
+  deleteLiveTempo() {
+    this._liveTempo = []
+    for (let i = 0; i < 5; i++) {
+      this._liveTempo.push(this._player.currentTempo)
+    }
+  }
+
   private get timebase() {
     return this.song.timebase
   }
@@ -648,6 +656,7 @@ export default class Reader {
 
     this._noteTimeOut = this._noteTimeIn = performance.now()
     this._lastTick = this._player.position
+    console.log("this._player.currentTempo: ", this._player.currentTempo)
 
     // If the playhead has passed the note to be played by 50 ms, then stop playing output notes
     // if (this._in[0][0] + 50 < this._player.position) {
@@ -685,6 +694,7 @@ export default class Reader {
       this._out[0].forEach(function (msg, idx) {
         addNote = false
         if (idx > 0) {
+          console.log(msg)
           if (msg[1] > 0) {
             output.sendEvent(noteOnMidiEvent(0, 1, msg[0], msg[1]), 0, time)
             //Send tempo ratio to CC103:
@@ -729,7 +739,7 @@ export default class Reader {
     //Remove past notes that haven't been played
     while (this._player.position - 500 > this._expectedIn[0][0]) {
       this._expectedIn.shift()
-      console.log("this._expectedIn: ", this._expectedIn)
+      //console.log("this._expectedIn: ", this._expectedIn)
     }
 
     if (this._lastTime > 0) {
@@ -762,6 +772,19 @@ export default class Reader {
   set tolerance(tol: number) {
     this._tolerance = tol
     console.log("tol", tol)
+  }
+
+  get timeRange() {
+    return this._timeRange
+  }
+
+  set timeRange(tol: number) {
+    if (tol > 20) {
+      this._timeRange = tol
+    } else {
+      this._timeRange = 20
+    }
+    console.log("timeRange", this._timeRange)
   }
 
   get autoMode() {
