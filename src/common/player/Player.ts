@@ -277,6 +277,7 @@ export default class Player {
   }
 
   //Runs every x milisecond set by setInterval
+
   playNotes() {
     if (this._scheduler === null) {
       return
@@ -294,6 +295,12 @@ export default class Player {
       if (e.type === "channel") {
         const delayTime = (time - timestamp) / 1000
 
+        if (e.subtype === "controller") {
+          if (e.controllerType === 83) {
+            // change to auto mode
+          }
+        }
+
         if (e.trackId === METRONOME_TRACK_ID) {
           if (this.isMetronomeEnabled) {
             this._metronomeOutput.sendEvent(e, delayTime, timestamp)
@@ -304,12 +311,13 @@ export default class Player {
 
           this.sendEvent(e, delayTime, timestamp)
           if (e.subtype == "noteOn") {
-            console.log(timestamp, e.noteNumber, e.velocity)
+            console.log("playNote: ", timestamp, e.noteNumber, e.velocity)
           }
         }
       } else {
         // channel イベント以外を実行
         // Run other than Channel Event
+        console.log("playerEvent: ", e)
         this.applyPlayerEvent(e)
       }
     })

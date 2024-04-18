@@ -5,7 +5,12 @@ import React, { FC, useCallback, useState } from "react"
 import { ContextMenu, ContextMenuProps } from "../../../components/ContextMenu"
 import { Localized } from "../../../components/Localized"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
-import { addTimeSignature, setVampEnd, setVampStart } from "../../actions"
+import {
+  addTimeSignature,
+  setModeChange,
+  setVampEnd,
+  setVampStart,
+} from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { RulerStore } from "../../stores/RulerStore"
 import { TimeSignatureDialog } from "./TimeSignatureDialog"
@@ -23,11 +28,6 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
     const [isOpenTimeSignatureDialog, setOpenTimeSignatureDialog] =
       useState(false)
 
-    const ticks = tick
-
-    const startV = rootStore.vampStarts
-    const endV = rootStore.vampEnds
-
     const isTimeSignatureSelected =
       rulerStore.selectedTimeSignatureEventIds.length > 0
 
@@ -42,6 +42,16 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
       )
       handleClose()
     }, [song])
+
+    const onClickSetModeAuto = useCallback(() => {
+      setModeChange(rootStore)(tick, 1)
+      handleClose()
+    }, [tick])
+
+    const onClickSetModeDirect = useCallback(() => {
+      setModeChange(rootStore)(tick, 0)
+      handleClose()
+    }, [tick])
 
     const onClickSetVampStart = useCallback(() => {
       setVampStart(rootStore)(tick)
@@ -78,6 +88,16 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
             <Localized default="Set Vamp End">set-loop-end</Localized>
             <HotKey>Alt+Click</HotKey>
           </MenuItem> */}
+
+          <MenuItem onClick={onClickSetModeAuto}>
+            <Localized default="Start Auto Mode">auto-mode</Localized>
+          </MenuItem>
+
+          <MenuItem onClick={onClickSetModeDirect}>
+            <Localized default="Start Direct Mode">direct-mode</Localized>
+          </MenuItem>
+
+          <MenuDivider />
 
           <MenuItem onClick={onClickSetVampStart}>
             <Localized default="Add Vamp Start">add-vamp-start</Localized>

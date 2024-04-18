@@ -17,9 +17,11 @@ export const playOrPause =
   }
 
 export const stop =
-  ({ player, pianoRollStore, pianoRollStore2 }: RootStore) =>
+  ({ player, reader, pianoRollStore, pianoRollStore2 }: RootStore) =>
   () => {
     player.stop()
+    reader.stop()
+    console.log("STOPPEDDD")
     player.position = 0
     pianoRollStore.setScrollLeftInTicks(0)
   }
@@ -196,3 +198,19 @@ export const setVampEnd = (rootStore: RootStore) => (tick: number) => {
   console.log(ccEvent)
   createTrackEvent(rootStore)(ccEvent, tick)
 }
+
+export const setModeChange =
+  (rootStore: RootStore) => (tick: number, mode: number) => {
+    rootStore.mode.push([tick, mode])
+    //console.log(rootStore.vampStarts)
+    var sortedArray = rootStore.mode.sort(function (a, b) {
+      return a[0] - b[0]
+    })
+
+    rootStore.mode = sortedArray
+    console.log("rootStore.mode: ", rootStore.mode)
+    //Vamp start message is assigned to midi message CC86
+    const ccEvent = controllerMidiEvent(0, 0, 86, Math.round(tick))
+    console.log(ccEvent)
+    createTrackEvent(rootStore)(ccEvent, tick)
+  }

@@ -29,6 +29,7 @@ export default class RootStore {
   song2: Song = emptySong()
   vampStarts: number[] = []
   vampEnds: number[] = []
+  mode: number[][] = []
   directControl: boolean = false
   readonly router = new Router()
   readonly trackMute = new TrackMute()
@@ -59,6 +60,7 @@ export default class RootStore {
       song2: observable.ref,
       vampStarts: observable.ref,
       vampEnds: observable.ref,
+      mode: observable.ref,
       directControl: observable.ref,
     })
 
@@ -74,7 +76,7 @@ export default class RootStore {
       this,
     )
 
-    this.reader = new Reader(this, this.player, this.synthGroup)
+    this.reader = new Reader(this, this.player, this.synthGroup, this.mode)
 
     this.midiRecorder = new MIDIRecorder(this.player, this)
 

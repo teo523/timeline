@@ -17,6 +17,7 @@ export default class Reader {
   private _notes: [number, number][]
   private _chords: number[][]
   private _songStore: SongStore
+  private _mode: number[][]
   private _scheduler: EventScheduler<ReaderEvent> | null = null
   private _handler: EventHandler | null = null
   private _isPlaying: boolean = false
@@ -56,7 +57,12 @@ export default class Reader {
   //[tick of input note, expected time for input note to happen]
   private _expectedIn: number[][] = []
 
-  constructor(songStore: SongStore, player: Player, output: SynthOutput) {
+  constructor(
+    songStore: SongStore,
+    player: Player,
+    output: SynthOutput,
+    mode: number[][],
+  ) {
     makeObservable<Reader, "_averageTempo">(this, {
       _averageTempo: observable,
       playerTempo: computed,
@@ -65,6 +71,7 @@ export default class Reader {
     this._notes = []
     this._chords = []
     this._songStore = songStore
+    this._mode = mode
     this._player = player
     this._output = output
     this._interval = null
@@ -300,6 +307,7 @@ export default class Reader {
     }
     // console.log("init:", this._player.position)
     this._currentTick = this._player.position
+    this._isPlaying = true
     this._startTime = performance.now()
     this._noteTimeOut = this._startTime
     this._noteTimeIn = this._startTime
@@ -459,11 +467,33 @@ export default class Reader {
     }
   }
 
+  private _setMode() {
+    let self = this
+    let initial = this._autoMode
+    this._mode.forEach(function (elem, idx) {
+      if (elem[0] <= self._player.position) {
+        if (elem[1] == 1) {
+          self._autoMode = true
+          // console.log("changed to auto")
+        } else {
+          self._autoMode = false
+          // console.log("changed to direct")
+          // console.log(elem)
+        }
+      }
+    })
+
+    if (this._autoMode != initial) {
+      this.stop()
+      this.play()
+    }
+  }
+
   private _directControl() {
-    console.log("DC")
-    console.log("this.notes[0][0]: ", this.notes[0][0])
-    console.log("this.notes[0][1]: ", this.notes[0][1])
-    console.log("this._currentTick : ", this._currentTick)
+    // console.log("DC")
+    // console.log("this.notes[0][0]: ", this.notes[0][0])
+    // console.log("this.notes[0][1]: ", this.notes[0][1])
+    // console.log("this._currentTick : ", this._currentTick)
     // move reader position
     this._currentTick = this._player.position
     //if (this._playedNotes[0] === nextNotes[0][1])
@@ -603,6 +633,7 @@ export default class Reader {
       }
     }
     //Now handle player
+    this._setMode()
     this._player.playNotes()
     if (performance.now() - this._chordCounter > 40) {
       this._chordLock = false
@@ -759,6 +790,7 @@ export default class Reader {
 
     this._lastTime = performance.now()
 
+    this._setMode()
     // console.log(
     //   " performance.now() - currentTime",
     //   performance.now() - currentTime,
