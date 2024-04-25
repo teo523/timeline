@@ -98,6 +98,7 @@ export default class PianoRollStore {
       selectionBounds: computed,
       currentVolume: computed,
       currentVolume2: computed,
+      currentVolume3: computed,
       currentPan: computed,
       currentTempo: computed,
       playerTempo: computed,
@@ -374,6 +375,10 @@ export default class PianoRollStore {
   }
 
   get currentVolume2(): number | undefined {
+    return this.selectedTrack?.getVolume(this.rootStore.player.position)
+  }
+
+  get currentVolume3(): number | undefined {
     return this.selectedTrack?.getVolume(this.rootStore.player.position)
   }
 

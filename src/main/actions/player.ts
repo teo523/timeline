@@ -201,7 +201,7 @@ export const setVampEnd = (rootStore: RootStore) => (tick: number) => {
 
 export const setModeChange =
   (rootStore: RootStore) => (tick: number, mode: number) => {
-    rootStore.mode.push([tick, mode])
+    rootStore.mode.push([tick, mode, rootStore.reader.tolerance])
     //console.log(rootStore.vampStarts)
     var sortedArray = rootStore.mode.sort(function (a, b) {
       return a[0] - b[0]

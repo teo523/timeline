@@ -1,5 +1,6 @@
 import { Stream, deserializeSingleEvent } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
+import { useStores } from "../../main/hooks/useStores"
 import { SynthOutput } from "../../main/services/SynthOutput"
 import { SongStore } from "../../main/stores/SongStore"
 import {
@@ -42,6 +43,7 @@ export default class Reader {
   private _averageTempo: number
   private _playedNotes: number[][] = []
   private _tolerance = 50
+  private _averageLength: number = 5
   private _timeRange = 100
   private _chordLock = false
   private _chordCounter = 0
@@ -67,6 +69,8 @@ export default class Reader {
       _averageTempo: observable,
       playerTempo: computed,
     })
+
+    const rootStore = useStores()
 
     this._notes = []
     this._chords = []
@@ -128,7 +132,7 @@ export default class Reader {
 
             this._liveTempo.push(tmp)
 
-            if (this._liveTempo.length > 4) {
+            if (this._liveTempo.length > this._averageLength - 1) {
               this._liveTempo.shift()
               let sum = 0
               for (let i = 0; i < this._liveTempo.length; i++) {
@@ -470,9 +474,13 @@ export default class Reader {
   private _setMode() {
     let self = this
     let initial = this._autoMode
-    this._mode.forEach(function (elem, idx) {
-      if (elem[0] <= self._player.position) {
-        if (elem[1] == 1) {
+
+    for (var i in this._mode) {
+      if (
+        Number(i) < this._mode.length - 1 &&
+        this._mode[Number(i) + 1][0] > this._player.position
+      ) {
+        if (this._mode[i][1] == 1) {
           self._autoMode = true
           // console.log("changed to auto")
         } else {
@@ -480,8 +488,23 @@ export default class Reader {
           // console.log("changed to direct")
           // console.log(elem)
         }
+        self.tolerance = this._mode[i][2]
+
+        break
       }
-    })
+
+      if (Number(i) == this._mode.length - 1) {
+        if (this._mode[i][1] == 1) {
+          self._autoMode = true
+          // console.log("changed to auto")
+        } else {
+          self._autoMode = false
+          // console.log("changed to direct")
+          // console.log(elem)
+        }
+        self.tolerance = this._mode[i][2]
+      }
+    }
 
     if (this._autoMode != initial) {
       this.stop()
@@ -665,7 +688,7 @@ export default class Reader {
 
   deleteLiveTempo() {
     this._liveTempo = []
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < this._averageLength; i++) {
       this._liveTempo.push(this._player.currentTempo)
     }
   }
@@ -804,6 +827,19 @@ export default class Reader {
   set tolerance(tol: number) {
     this._tolerance = tol
     console.log("tol", tol)
+  }
+
+  get averageLength() {
+    return this._averageLength
+  }
+
+  set averageLength(avg: number) {
+    if (avg > 0) {
+      this._averageLength = avg
+    } else {
+      this._averageLength = 1
+    }
+    console.log("this._averageLength: ", this._averageLength)
   }
 
   get timeRange() {

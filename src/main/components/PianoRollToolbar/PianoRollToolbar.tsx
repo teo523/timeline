@@ -5,6 +5,7 @@ import Switch from "react-switch"
 import { useStores } from "../../hooks/useStores"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
 import { Toolbar } from "../Toolbar/Toolbar"
+import { AverageSlider } from "./AverageSlider"
 import { EventListButton } from "./EventListButton"
 import { PianoRollToolSelector } from "./PianoRollToolSelector"
 import { TimeSlider } from "./TimeSlider"
@@ -125,6 +126,8 @@ export const PianoRollToolbar: FC = observer(() => {
 
       <Spacer />
       <TimeSlider trackId={selectedTrackId} />
+      <Spacer />
+      <AverageSlider trackId={selectedTrackId} />
       <Spacer />
 
       {/* <PanSlider trackId={selectedTrackId} /> */}

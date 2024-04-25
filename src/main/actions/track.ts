@@ -280,13 +280,30 @@ export const setTrackName =
   }
 
 export const setTrackVolume =
-  ({ song, player, pushHistory, reader }: RootStore) =>
+  ({ song, player, pushHistory, reader, mode }: RootStore) =>
   (trackId: number, volume: number) => {
     pushHistory()
     //Couldn't get it work other way, that's why it's here, so it gets re-rendered
     reader.tolerance = volume
+
     const track = song.tracks[trackId]
     track.setVolume(volume, player.position)
+
+    for (let i in mode) {
+      if (
+        Number(i) < mode.length - 1 &&
+        mode[Number(i) + 1][0] >= player.position
+      ) {
+        mode[i][2] = volume
+        break
+      }
+
+      if (Number(i) == mode.length - 1) {
+        mode[i][2] = volume
+      }
+    }
+
+    console.log("mode:", mode)
 
     if (track.channel !== undefined) {
       player.sendEvent(volumeMidiEvent(0, track.channel, volume))
@@ -300,6 +317,17 @@ export const setTrackVolume2 =
     //Couldn't get it work other way, that's why it's here, so it gets re-rendered
     // reader.tolerance = volume
     reader.timeRange = volume
+    const track = song.tracks[trackId]
+    track.setVolume(volume, player.position)
+  }
+
+export const setTrackVolume3 =
+  ({ song, player, pushHistory, reader }: RootStore) =>
+  (trackId: number, volume: number) => {
+    pushHistory()
+    //Couldn't get it work other way, that's why it's here, so it gets re-rendered
+    // reader.tolerance = volume
+    reader.averageLength = volume
     const track = song.tracks[trackId]
     track.setVolume(volume, player.position)
   }

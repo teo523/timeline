@@ -8,8 +8,8 @@ import chordIcon from "../../images/timeBracket.svg"
 
 const Container = styled.div`
   -webkit-appearance: none;
-  padding: 0 0.75rem;
-  border: 1px solid ${({ theme }) => theme.dividerColor};
+  padding: 0 0.75rem 0 0;
+  border-right: 1px solid ${({ theme }) => theme.dividerColor};
   text-transform: none;
   width: 8rem;
   height: 2rem;
@@ -17,14 +17,13 @@ const Container = styled.div`
   white-space: nowrap;
   display: flex;
   align-items: center;
-  border-radius: 4px;
 
   &:hover {
     background: ${({ theme }) => theme.highlightColor};
   }
 
   svg {
-    width: 2.3rem;
+    width: 2rem;
     fill: black;
   }
 `
@@ -33,11 +32,11 @@ const VolumeIcon = styled(chordIcon)`
   width: 2rem;
   height: 2rem;
   color: ${({ theme }) => theme.secondaryTextColor};
-  margin-right: 0.5rem;
 `
 
 const Monitor = styled.div`
   color: black;
+  font-size: 0.5rem;
   align-items: center;
   margin: 0 0 0 0;
   padding: 0.3rem;

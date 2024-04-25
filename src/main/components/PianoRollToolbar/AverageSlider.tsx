@@ -2,13 +2,13 @@ import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback } from "react"
 import { Slider } from "../../../components/Slider"
-import { setTrackVolume } from "../../actions"
+import { setTrackVolume3 } from "../../actions"
 import { useStores } from "../../hooks/useStores"
-import chordIcon from "../../images/chordIcon.svg"
+import chordIcon from "../../images/metro.svg"
 
 const Container = styled.div`
   -webkit-appearance: none;
-  padding: 0 0.75rem;
+  padding: 0 0.75rem 0 0;
   border-right: 1px solid ${({ theme }) => theme.dividerColor};
   text-transform: none;
   width: 8rem;
@@ -23,7 +23,7 @@ const Container = styled.div`
   }
 
   svg {
-    width: 2.3rem;
+    width: 2rem;
     fill: black;
   }
 `
@@ -32,7 +32,6 @@ const VolumeIcon = styled(chordIcon)`
   width: 2rem;
   height: 2rem;
   color: ${({ theme }) => theme.secondaryTextColor};
-  margin-right: 0.5rem;
 `
 
 const Monitor = styled.div`
@@ -43,36 +42,36 @@ const Monitor = styled.div`
   padding: 0.3rem;
 `
 
-export interface VolumeSliderProps {
+export interface AverageSliderProps {
   trackId: number
 }
 
-const _VolumeSlider: FC<VolumeSliderProps> = observer(({ trackId }) => {
+const _AverageSlider: FC<AverageSliderProps> = observer(({ trackId }) => {
   const rootStore = useStores()
   const {
-    pianoRollStore: { currentVolume },
+    pianoRollStore: { currentVolume3 },
     reader,
   } = rootStore
-  const volume = reader.tolerance ?? 50
+  const volume = reader.averageLength ?? 5
   const onChange = useCallback(
     (value: number) => {
-      setTrackVolume(rootStore)(trackId, value)
+      setTrackVolume3(rootStore)(trackId, value)
     },
     [rootStore, trackId],
   )
   return (
     <Container>
       <VolumeIcon />
-      <Monitor className="monitorText">{reader.tolerance + "%"}</Monitor>
+      <Monitor className="monitorText">{reader.averageLength}</Monitor>
 
       <Slider
         value={volume}
         onChange={(value) => onChange(value)}
-        max={100}
+        max={20}
         minStepsBetweenThumbs={1}
       />
     </Container>
   )
 })
 
-export const VolumeSlider = React.memo(_VolumeSlider)
+export const AverageSlider = React.memo(_AverageSlider)
