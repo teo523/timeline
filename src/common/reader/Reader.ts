@@ -1,7 +1,12 @@
 import { Stream, deserializeSingleEvent } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
-import { useStores } from "../../main/hooks/useStores"
+import {
+  setTrackVolume,
+  setTrackVolume2,
+  setTrackVolume3,
+} from "../../main/actions"
 import { SynthOutput } from "../../main/services/SynthOutput"
+import RootStore from "../../main/stores/RootStore"
 import { SongStore } from "../../main/stores/SongStore"
 import {
   controllerMidiEvent,
@@ -18,6 +23,7 @@ export default class Reader {
   private _notes: [number, number][]
   private _chords: number[][]
   private _songStore: SongStore
+  private _rootStore: RootStore
   private _mode: number[][]
   private _scheduler: EventScheduler<ReaderEvent> | null = null
   private _handler: EventHandler | null = null
@@ -64,17 +70,17 @@ export default class Reader {
     player: Player,
     output: SynthOutput,
     mode: number[][],
+    rootStore: RootStore,
   ) {
     makeObservable<Reader, "_averageTempo">(this, {
       _averageTempo: observable,
       playerTempo: computed,
     })
 
-    const rootStore = useStores()
-
     this._notes = []
     this._chords = []
     this._songStore = songStore
+    this._rootStore = rootStore
     this._mode = mode
     this._player = player
     this._output = output
@@ -489,6 +495,11 @@ export default class Reader {
           // console.log(elem)
         }
         self.tolerance = this._mode[i][2]
+        self.timeRange = this._mode[i][3]
+        self.averageLength = this._mode[i][4]
+        setTrackVolume(this._rootStore)(1, self.tolerance)
+        setTrackVolume2(this._rootStore)(1, self.timeRange)
+        setTrackVolume3(this._rootStore)(1, self.averageLength)
 
         break
       }
@@ -503,6 +514,11 @@ export default class Reader {
           // console.log(elem)
         }
         self.tolerance = this._mode[i][2]
+        self.timeRange = this._mode[i][3]
+        self.averageLength = this._mode[i][4]
+        setTrackVolume(this._rootStore)(1, self.tolerance)
+        setTrackVolume2(this._rootStore)(1, self.timeRange)
+        setTrackVolume3(this._rootStore)(1, self.averageLength)
       }
     }
 
@@ -818,6 +834,7 @@ export default class Reader {
     //   " performance.now() - currentTime",
     //   performance.now() - currentTime,
     // )
+    console.log("averageL: ", this.averageLength)
   }
 
   get tolerance() {

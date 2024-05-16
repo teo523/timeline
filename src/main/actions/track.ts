@@ -9,7 +9,6 @@ import {
   panMidiEvent,
   programChangeMidiEvent,
   timeSignatureMidiEvent,
-  volumeMidiEvent,
 } from "../../common/midi/MidiEvent"
 import Quantizer from "../../common/quantizer"
 import { getMeasureStart } from "../../common/song/selector"
@@ -304,14 +303,10 @@ export const setTrackVolume =
     }
 
     console.log("mode:", mode)
-
-    if (track.channel !== undefined) {
-      player.sendEvent(volumeMidiEvent(0, track.channel, volume))
-    }
   }
 
 export const setTrackVolume2 =
-  ({ song, player, pushHistory, reader }: RootStore) =>
+  ({ song, player, pushHistory, reader, mode }: RootStore) =>
   (trackId: number, volume: number) => {
     pushHistory()
     //Couldn't get it work other way, that's why it's here, so it gets re-rendered
@@ -319,10 +314,23 @@ export const setTrackVolume2 =
     reader.timeRange = volume
     const track = song.tracks[trackId]
     track.setVolume(volume, player.position)
+    for (let i in mode) {
+      if (
+        Number(i) < mode.length - 1 &&
+        mode[Number(i) + 1][0] >= player.position
+      ) {
+        mode[i][3] = volume
+        break
+      }
+
+      if (Number(i) == mode.length - 1) {
+        mode[i][3] = volume
+      }
+    }
   }
 
 export const setTrackVolume3 =
-  ({ song, player, pushHistory, reader }: RootStore) =>
+  ({ song, player, pushHistory, reader, mode }: RootStore) =>
   (trackId: number, volume: number) => {
     pushHistory()
     //Couldn't get it work other way, that's why it's here, so it gets re-rendered
@@ -330,6 +338,20 @@ export const setTrackVolume3 =
     reader.averageLength = volume
     const track = song.tracks[trackId]
     track.setVolume(volume, player.position)
+
+    for (let i in mode) {
+      if (
+        Number(i) < mode.length - 1 &&
+        mode[Number(i) + 1][0] >= player.position
+      ) {
+        mode[i][4] = volume
+        break
+      }
+
+      if (Number(i) == mode.length - 1) {
+        mode[i][4] = volume
+      }
+    }
   }
 
 export const setTrackPan =
