@@ -256,9 +256,11 @@ export default class Player {
   }
 
   private syncPosition = throttle(() => {
+    console.log("position: ", this.position)
     if (this._scheduler !== null) {
       this._currentTick = this._scheduler.scheduledTick
     }
+    console.log("position: ", this.position)
   }, 20)
 
   private applyPlayerEvent(

@@ -107,6 +107,7 @@ export default class EventScheduler<E extends SchedulableEvent> {
 
     this._currentTick = nowTick
     this._scheduledTick = endTick
+    console.log("position: ", this._scheduledTick)
 
     const ret = getEventsInRange(startTick, endTick, nowTick)
     if (ret.length > 0) {

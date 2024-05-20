@@ -317,6 +317,7 @@ export default class Reader {
     }
     // console.log("init:", this._player.position)
     this._currentTick = this._player.position
+    console.log("this._player.position: ", this._player.position)
     this._isPlaying = true
     this._startTime = performance.now()
     this._noteTimeOut = this._startTime
@@ -355,6 +356,7 @@ export default class Reader {
   }
 
   stop() {
+    console.log("stop")
     this._scheduler = null
     this._handler = null
     this._isPlaying = false
@@ -529,6 +531,7 @@ export default class Reader {
   }
 
   private _directControl() {
+    console.log("this._player.position: ", this._player.position)
     // console.log("DC")
     // console.log("this.notes[0][0]: ", this.notes[0][0])
     // console.log("this.notes[0][1]: ", this.notes[0][1])
@@ -542,7 +545,7 @@ export default class Reader {
         this._player.timeStopped + performance.now() - this._prevTime
     }
     this._prevTime = performance.now()
-
+    console.log("this._player.position: ", this._player.position)
     if (this._in.length > 0) {
       // console.log(this.notes)
       // console.log(this._playedNotes)
@@ -561,6 +564,7 @@ export default class Reader {
       this._player.stop()
       console.log("s1")
     }
+    console.log("this._player.position: ", this._player.position)
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
       console.log("this._playedNotes1: ", this._playedNotes)
       //if next event is a chord
@@ -671,8 +675,12 @@ export default class Reader {
         this._playedNotes.shift()
       }
     }
+    console.log("this._player.position: ", this._player.position)
+
     //Now handle player
     this._setMode()
+    console.log("this._player.position: ", this._player.position)
+
     this._player.playNotes()
     if (performance.now() - this._chordCounter > 40) {
       this._chordLock = false
@@ -680,6 +688,8 @@ export default class Reader {
     if (this._chordLock) {
       this._playedNotes = []
     }
+
+    console.log("this._player.position: ", this._player.position)
   }
 
   get song() {
@@ -722,11 +732,13 @@ export default class Reader {
   }
 
   _autoControl() {
+    console.log("this._player.position: ", this._player.position)
+
     const output = this._output
 
     this._noteTimeOut = this._noteTimeIn = performance.now()
     this._lastTick = this._player.position
-    console.log("this._player.currentTempo: ", this._player.currentTempo)
+    // console.log("this._player.currentTempo: ", this._player.currentTempo)
 
     // If the playhead has passed the note to be played by 50 ms, then stop playing output notes
     // if (this._in[0][0] + 50 < this._player.position) {
@@ -834,7 +846,7 @@ export default class Reader {
     //   " performance.now() - currentTime",
     //   performance.now() - currentTime,
     // )
-    console.log("averageL: ", this.averageLength)
+    // console.log("averageL: ", this.averageLength)
   }
 
   get tolerance() {
@@ -843,7 +855,7 @@ export default class Reader {
 
   set tolerance(tol: number) {
     this._tolerance = tol
-    console.log("tol", tol)
+    // console.log("tol", tol)
   }
 
   get averageLength() {
@@ -856,7 +868,7 @@ export default class Reader {
     } else {
       this._averageLength = 1
     }
-    console.log("this._averageLength: ", this._averageLength)
+    // console.log("this._averageLength: ", this._averageLength)
   }
 
   get timeRange() {
@@ -869,7 +881,7 @@ export default class Reader {
     } else {
       this._timeRange = 20
     }
-    console.log("timeRange", this._timeRange)
+    // console.log("timeRange", this._timeRange)
   }
 
   get autoMode() {
