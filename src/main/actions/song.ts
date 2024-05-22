@@ -20,8 +20,8 @@ export const setSong = (rootStore: RootStore) => (song: Song) => {
   const { trackMute, pianoRollStore, player, historyStore, arrangeViewStore } =
     rootStore
   rootStore.song = song
-  console.log("setSong")
-  console.log(song)
+  console.log("Track1: ")
+  console.log(song.tracks[1])
   trackMute.reset()
 
   pianoRollStore.setScrollLeftInPixels(0)

@@ -88,7 +88,7 @@ export default class EventScheduler<E extends SchedulableEvent> {
       currentTick: number,
     ) => this._getEvents(startTick, endTick).map(withTimestamp(currentTick))
 
-    if (this._prevTime === undefined || timestamp - this._prevTime > 500) {
+    if (this._prevTime === undefined) {
       this._prevTime = timestamp
     }
     const delta = timestamp - this._prevTime
@@ -130,15 +130,15 @@ export default class EventScheduler<E extends SchedulableEvent> {
         ...getEventsInRange(loop.begin, endTick2, currentTick),
       ]
     } else {
-      console.log("nowTick: ", nowTick)
-      console.log("prev: ", this._prevTime)
-      console.log("lookAheadTick: ", lookAheadTick)
-      console.log("startTick: ", startTick)
-      console.log("endTick: ", endTick)
-      console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
+      // console.log("nowTick: ", nowTick)
+      // console.log("prev: ", this._prevTime)
+      // console.log("lookAheadTick: ", lookAheadTick)
+      // console.log("startTick: ", startTick)
+      // console.log("endTick: ", endTick)
+      // console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
       this._currentTick = nowTick
       this._scheduledTick = endTick
-      console.log("position2: ", this._scheduledTick)
+      // console.log("position2: ", this._scheduledTick)
 
       const ret = getEventsInRange(startTick, endTick, nowTick)
       if (ret.length > 0) {

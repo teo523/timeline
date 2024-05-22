@@ -39,6 +39,7 @@ export default class Player {
   private _interval: number | null = null
   private _currentTick = 0
   private _isPlaying = false
+  private _noteOffs: number[] = []
 
   disableSeek: boolean = false
   isMetronomeEnabled: boolean = false
@@ -74,6 +75,14 @@ export default class Player {
 
   private get timebase() {
     return this.song.timebase
+  }
+
+  set noteOffs(notes: number[]) {
+    this._noteOffs = notes
+  }
+
+  tickToMillisec(tick: number, bpm: number) {
+    return (tick / (this.timebase / 60) / bpm) * 1000
   }
 
   play() {
@@ -256,11 +265,9 @@ export default class Player {
   }
 
   private syncPosition = throttle(() => {
-    console.log("position: ", this.position)
     if (this._scheduler !== null) {
       this._currentTick = this._scheduler.scheduledTick
     }
-    console.log("position: ", this.position)
   }, 20)
 
   private applyPlayerEvent(
@@ -278,7 +285,7 @@ export default class Player {
     }
   }
 
-  //Runs every x milisecond set by setInterval
+  //This is called only for directMode
 
   playNotes() {
     if (this._scheduler === null) {
@@ -311,9 +318,27 @@ export default class Player {
           // channel イベントを MIDI Output に送信
           // Send Channel Event to MIDI OUTPUT
 
-          this.sendEvent(e, delayTime, timestamp)
+          //Schedule couples of noteOn noteOff messages together
           if (e.subtype == "noteOn") {
-            console.log("playNote: ", timestamp, e.noteNumber, e.velocity)
+            this.sendEvent(
+              noteOnMidiEvent(0, 1, e.noteNumber, e.velocity),
+              delayTime,
+              timestamp,
+            )
+            this.sendEvent(
+              noteOffMidiEvent(0, 1, e.noteNumber, 0),
+              delayTime +
+                this.tickToMillisec(this._noteOffs[0], this.currentTempo) /
+                  1000,
+              timestamp,
+            )
+            console.log("duration: ", this._noteOffs[0])
+            this._noteOffs.shift()
+          }
+
+          //Schedule any other message
+          else if (e.subtype != "noteOff") {
+            this.sendEvent(e, delayTime, timestamp)
           }
         }
       } else {

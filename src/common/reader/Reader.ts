@@ -8,6 +8,7 @@ import {
 import { SynthOutput } from "../../main/services/SynthOutput"
 import RootStore from "../../main/stores/RootStore"
 import { SongStore } from "../../main/stores/SongStore"
+import { filterEventsWithRange } from "../helpers/filterEvents"
 import {
   controllerMidiEvent,
   noteOffMidiEvent,
@@ -36,6 +37,7 @@ export default class Reader {
   private _output: SynthOutput
   private _in: number[][] = []
   private _out: number[][][] = []
+  private _noteOffs: number[] = []
   private _startTime: number = 0
   private _initialPosition: number = 0
   private _lastTick = 0
@@ -333,6 +335,7 @@ export default class Reader {
     this._notes = this.getNextNotes()
     this._chords = this.getChords(this.notes)
     this._playedNotes = []
+    this._player.noteOffs = this.noteOffs()
 
     this._handler = new EventHandler()
     if (!this.autoMode) {
@@ -479,6 +482,23 @@ export default class Reader {
     }
   }
 
+  private noteOffs(): number[] {
+    let array: number[] = []
+    const allEvents = filterEventsWithRange(
+      this.song2.tracks[1].allevents,
+      this._player.position,
+      this.song2.endOfSong,
+    )
+
+    allEvents.forEach((e, idx) => {
+      if (e.type == "channel" && e.subtype == "note") {
+        array.push(e.duration)
+      }
+    })
+
+    return array
+  }
+
   private _setMode() {
     let self = this
     let initial = this._autoMode
@@ -531,7 +551,6 @@ export default class Reader {
   }
 
   private _directControl() {
-    console.log("this._player.position: ", this._player.position)
     // console.log("DC")
     // console.log("this.notes[0][0]: ", this.notes[0][0])
     // console.log("this.notes[0][1]: ", this.notes[0][1])
@@ -545,7 +564,6 @@ export default class Reader {
         this._player.timeStopped + performance.now() - this._prevTime
     }
     this._prevTime = performance.now()
-    console.log("this._player.position: ", this._player.position)
     if (this._in.length > 0) {
       // console.log(this.notes)
       // console.log(this._playedNotes)
@@ -564,9 +582,7 @@ export default class Reader {
       this._player.stop()
       console.log("s1")
     }
-    console.log("this._player.position: ", this._player.position)
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
-      console.log("this._playedNotes1: ", this._playedNotes)
       //if next event is a chord
       if (this._chords.length > 0 && this._chords[0][0] <= this.notes[0][0]) {
         console.log("s2")
@@ -675,11 +691,9 @@ export default class Reader {
         this._playedNotes.shift()
       }
     }
-    console.log("this._player.position: ", this._player.position)
 
     //Now handle player
     this._setMode()
-    console.log("this._player.position: ", this._player.position)
 
     this._player.playNotes()
     if (performance.now() - this._chordCounter > 40) {
@@ -688,8 +702,6 @@ export default class Reader {
     if (this._chordLock) {
       this._playedNotes = []
     }
-
-    console.log("this._player.position: ", this._player.position)
   }
 
   get song() {
@@ -731,9 +743,7 @@ export default class Reader {
     return (((ms / 1000) * bpm) / 60) * this.timebase
   }
 
-  _autoControl() {
-    console.log("this._player.position: ", this._player.position)
-
+  private _autoControl() {
     const output = this._output
 
     this._noteTimeOut = this._noteTimeIn = performance.now()
