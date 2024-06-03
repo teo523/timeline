@@ -112,55 +112,110 @@ export default class Reader {
         if (this._lastPlayedNote == 0) {
           this._lastPlayedNote = performance.now()
         } else {
-          // console.log("HERE ", this._expectedIn)
-          if (
-            this._expectedIn.length > 0 &&
-            Math.abs(this._expectedIn[0][0] - this._player.position) < 500 &&
-            message.noteNumber == this._expectedIn[0][1]
-          ) {
-            let delta0 = this.tickToMillisec(
-              this._expectedIn[0][0] - this._lastPlayedTick,
-              this._player.currentTempo,
-            )
-            let delta1 = performance.now() - this._lastPlayedNote
+          // console.log("this._expectedIn.length", this._expectedIn.length)
 
-            let tmp = (this._player.currentTempo * delta0) / delta1
+          if (this._expectedIn.length > 0) {
+            // console.log("this._expectedIn[0][0]", this._expectedIn[0][0])
+            // console.log("this._player.position", this._player.position)
+          }
 
-            //bound values to +/- 20% around the currentTempo
-            tmp = Math.max(
-              Math.min(1.2 * this._player.currentTempo, tmp),
-              0.8 * this._player.currentTempo,
-            )
-
-            // console.log("delta0: ", delta0)
-            // console.log("delta1: ", delta1)
-            // console.log("instant tempo: ", tmp)
-            // console.log("performance.now(): ", performance.now())
-            // console.log("this._lastPlayedNote: ", this._lastPlayedNote)
-
-            this._liveTempo.push(tmp)
-
-            if (this._liveTempo.length > this._averageLength - 1) {
-              this._liveTempo.shift()
-              let sum = 0
-              for (let i = 0; i < this._liveTempo.length; i++) {
-                sum += this._liveTempo[i]
-              }
-              const average = sum / this._liveTempo.length
-              this._averageTempo = average
-              // console.log("averageTempo: ", this._averageTempo)
-            }
-            this._lastPlayedTick = this._expectedIn[0][0]
-
-            //Define the level of autonomy through tolerance slider
-            if (this.autoMode) {
-              this._player.position = Math.round(
-                (this._tolerance / 100) * this._player.position +
-                  (1 - this._tolerance / 100) * this._expectedIn[0][0],
+          if (this._autoMode) {
+            if (
+              this._expectedIn.length > 0 &&
+              Math.abs(this._expectedIn[0][0] - this._player.position) <
+                this.timeRange &&
+              message.noteNumber == this._expectedIn[0][1]
+            ) {
+              console.log("let delta0")
+              let delta0 = this.tickToMillisec(
+                this._expectedIn[0][0] - this._lastPlayedTick,
+                this._player.currentTempo,
               )
+              let delta1 = performance.now() - this._lastPlayedNote
+
+              let tmp = (this._player.currentTempo * delta0) / delta1
+
+              //bound values to +/- 20% around the currentTempo
+              tmp = Math.max(
+                Math.min(1.2 * this._player.currentTempo, tmp),
+                0.8 * this._player.currentTempo,
+              )
+
+              // console.log("delta0: ", delta0)
+              // console.log("delta1: ", delta1)
+              // console.log("instant tempo: ", tmp)
+              // console.log("performance.now(): ", performance.now())
+              // console.log("this._lastPlayedNote: ", this._lastPlayedNote)
+
+              this._liveTempo.push(tmp)
+
+              if (this._liveTempo.length > this._averageLength - 1) {
+                this._liveTempo.shift()
+                let sum = 0
+                for (let i = 0; i < this._liveTempo.length; i++) {
+                  sum += this._liveTempo[i]
+                }
+                const average = sum / this._liveTempo.length
+                this._averageTempo = average
+                // console.log("averageTempo: ", this._averageTempo)
+              }
+              this._lastPlayedTick = this._expectedIn[0][0]
+
+              //Define the level of autonomy through tolerance slider
+              if (this.autoMode) {
+                this._player.position = Math.round(
+                  (this._tolerance / 100) * this._player.position +
+                    (1 - this._tolerance / 100) * this._expectedIn[0][0],
+                )
+              }
+              this._lastPlayedNote = performance.now()
+              this._expectedIn.shift()
             }
-            this._lastPlayedNote = performance.now()
-            this._expectedIn.shift()
+          } else {
+            if (
+              this._expectedIn.length > 0 &&
+              message.noteNumber == this._expectedIn[0][1]
+            ) {
+              let delta0 = this.tickToMillisec(
+                this._expectedIn[0][0] - this._lastPlayedTick,
+                this._player.currentTempo,
+              )
+              let delta1 = performance.now() - this._lastPlayedNote
+
+              let tmp = (this._player.currentTempo * delta0) / delta1
+
+              //bound values to +/- 20% around the currentTempo
+              tmp = Math.max(
+                Math.min(1.2 * this._player.currentTempo, tmp),
+                0.8 * this._player.currentTempo,
+              )
+
+              // console.log("delta0: ", delta0)
+              // console.log("delta1: ", delta1)
+              // console.log("instant tempo: ", tmp)
+              // console.log("performance.now(): ", performance.now())
+              // console.log("this._lastPlayedNote: ", this._lastPlayedNote)
+
+              this._liveTempo.push(tmp)
+
+              if (this._liveTempo.length > this._averageLength - 1) {
+                this._liveTempo.shift()
+                let sum = 0
+                for (let i = 0; i < this._liveTempo.length; i++) {
+                  sum += this._liveTempo[i]
+                }
+                const average = sum / this._liveTempo.length
+                this._averageTempo = average
+                this._player.averageTempo = average
+                // console.log("averageTempo: ", this._averageTempo)
+              }
+              this._lastPlayedTick = this._expectedIn[0][0]
+
+              //Define the level of autonomy through tolerance slider
+
+              this._lastPlayedNote = performance.now()
+              this._expectedIn.shift()
+            }
           }
         }
 
@@ -585,7 +640,7 @@ export default class Reader {
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
       //if next event is a chord
       if (this._chords.length > 0 && this._chords[0][0] <= this.notes[0][0]) {
-        console.log("s2")
+        //console.log("s2")
         if (!this._chordLock) {
           // console.log("nextEvent is chord")
           // console.log(this._playedNotes)
@@ -652,9 +707,9 @@ export default class Reader {
 
       //If next event is a single note
       else if (this.notes.length > 0 && !this._chordLock) {
-        console.log("s3")
+        // console.log("s3")
         if (this._playedNotes[0][1] == this._notes[0][1]) {
-          console.log("playedNextNote!")
+          // console.log("playedNextNote!")
           if (
             this._player.isPlaying &&
             this._player.position < this._notes[0][0]
@@ -681,7 +736,7 @@ export default class Reader {
           // this.lastPosition = this._player.position
           // console.log("lastMatchTime: ", this.lastMatchTime)
           // console.log("delta0: ", this.delta_0)
-          console.log("instant tempo: ", this.instantTempo)
+          // console.log("instant tempo: ", this.instantTempo)
         } else {
           if (this._player.isPlaying) {
             // this._player.stop()
@@ -690,6 +745,11 @@ export default class Reader {
         }
         this._playedNotes.shift()
       }
+    }
+
+    while (this._player.position - 500 > this._expectedIn[0][0]) {
+      this._expectedIn.shift()
+      //console.log("this._expectedIn: ", this._expectedIn)
     }
 
     //Now handle player

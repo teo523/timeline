@@ -7,6 +7,7 @@ import { matrixFromTranslation } from "../../../helpers/matrix"
 import { useStores } from "../../../hooks/useStores"
 import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
+import { Cursor2 } from "../../GLNodes/Cursor2"
 import { Selection } from "../../GLNodes/Selection"
 import { LineGraphItems } from "./LineGraphItems"
 
@@ -89,6 +90,7 @@ export const LineGraphCanvas: FC<LineGraphCanvasProps> = observer(
           />
           <Selection rect={selectionRect} zIndex={2} />
           <Cursor x={cursorX} height={height} zIndex={3} />
+          <Cursor2 x={cursorX + 20} height={height} zIndex={5} />
         </Transform>
       </GLCanvas>
     )

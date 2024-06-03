@@ -30,6 +30,7 @@ export const DEFAULT_TEMPO = 120
 
 export default class Player {
   private _currentTempo = DEFAULT_TEMPO
+  private _averageTempo = 120
   private _scheduler: EventScheduler<PlayerEvent> | null = null
   private _songStore: SongStore
   private _output: SynthOutput
@@ -59,6 +60,7 @@ export default class Player {
       loop: observable,
       isMetronomeEnabled: observable,
       position: computed,
+      position2: computed,
       isPlaying: computed,
     })
 
@@ -79,6 +81,10 @@ export default class Player {
 
   set noteOffs(notes: number[]) {
     this._noteOffs = notes
+  }
+
+  set averageTempo(avgTmpo: number) {
+    this._averageTempo = avgTmpo
   }
 
   tickToMillisec(tick: number, bpm: number) {
@@ -117,6 +123,7 @@ export default class Player {
     tick = Math.min(Math.max(Math.floor(tick), 0), this.song.endOfSong)
     if (this._scheduler) {
       this._scheduler.seek(tick)
+      this._scheduler.seekFast(tick)
     }
     this._currentTick = tick
 
@@ -127,6 +134,10 @@ export default class Player {
 
   get position() {
     return this._currentTick
+  }
+
+  get position2() {
+    return this._scheduler?.scheduledTickFast
   }
 
   get isPlaying() {
@@ -320,6 +331,16 @@ export default class Player {
 
           //Schedule couples of noteOn noteOff messages together
           if (e.subtype == "noteOn") {
+            let ratio = Math.trunc(
+              Math.min((100 * this._averageTempo) / this._currentTempo, 127),
+            )
+
+            this.sendEvent(
+              controllerMidiEvent(0, 1, 103, ratio),
+              0,
+              performance.now(),
+            )
+
             this.sendEvent(
               noteOnMidiEvent(0, 1, e.noteNumber, e.velocity),
               delayTime,
@@ -332,7 +353,7 @@ export default class Player {
                   1000,
               timestamp,
             )
-            console.log("duration: ", this._noteOffs[0])
+            // console.log("duration: ", this._noteOffs[0])
             this._noteOffs.shift()
           }
 

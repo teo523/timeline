@@ -36,7 +36,9 @@ export default class EventScheduler<E extends SchedulableEvent> {
   loop: EventSchedulerLoop | null = null
 
   private _currentTick = 0
+  private _currentTickFast = 0
   private _scheduledTick = 0
+  private _scheduledTickFast = 0
   private _prevTime: number | undefined = undefined
   private _getEvents: (startTick: number, endTick: number) => E[]
   private _createLoopEndEvents: () => Omit<E, "tick">[]
@@ -52,12 +54,18 @@ export default class EventScheduler<E extends SchedulableEvent> {
     this._createLoopEndEvents = createLoopEndEvents
     this._currentTick = tick
     this._scheduledTick = tick
+    this._currentTickFast = tick
+    this._scheduledTickFast = tick
     this.timebase = timebase
     this.lookAheadTime = lookAheadTime
   }
 
   get scheduledTick() {
     return this._scheduledTick
+  }
+
+  get scheduledTickFast() {
+    return this._scheduledTickFast
   }
 
   millisecToTick(ms: number, bpm: number) {
@@ -70,6 +78,10 @@ export default class EventScheduler<E extends SchedulableEvent> {
 
   seek(tick: number) {
     this._currentTick = this._scheduledTick = Math.max(0, tick)
+  }
+
+  seekFast(tick: number) {
+    this._currentTickFast = this._scheduledTickFast = Math.max(0, tick)
   }
 
   readNextEvents(bpm: number, timestamp: number): WithTimestamp<E>[] {
@@ -93,7 +105,9 @@ export default class EventScheduler<E extends SchedulableEvent> {
     }
     const delta = timestamp - this._prevTime
     const deltaTick = Math.max(0, this.millisecToTick(delta, bpm / 10))
+    const deltaTickFast = Math.max(0, this.millisecToTick(delta, bpm))
     const nowTick = Math.floor(this._currentTick + deltaTick)
+    const nowTickFast = Math.floor(this._currentTickFast + deltaTickFast)
 
     // 先読み時間
     // Leading time
@@ -107,6 +121,7 @@ export default class EventScheduler<E extends SchedulableEvent> {
     // Target of processing up to read time
     const startTick = this._scheduledTick
     const endTick = nowTick + lookAheadTick
+    const endTickFast = nowTickFast + lookAheadTick
 
     this._prevTime = timestamp
 
@@ -131,13 +146,23 @@ export default class EventScheduler<E extends SchedulableEvent> {
       ]
     } else {
       // console.log("nowTick: ", nowTick)
+      // console.log("nowTickFast: ", nowTickFast)
       // console.log("prev: ", this._prevTime)
       // console.log("lookAheadTick: ", lookAheadTick)
       // console.log("startTick: ", startTick)
+      // console.log("deltaTick: ", deltaTick)
+      // console.log("deltaTickFast: ", deltaTickFast)
+      // console.log("startTick: ", startTick)
       // console.log("endTick: ", endTick)
+      // console.log("endTickFast: ", endTickFast)
+      // console.log("this._scheduledTick: ", this._scheduledTick)
+      // console.log("this._scheduledTickFast: ", this._scheduledTickFast)
       // console.log("Events: ", getEventsInRange(startTick, endTick, nowTick))
       this._currentTick = nowTick
       this._scheduledTick = endTick
+      this._currentTickFast = nowTickFast
+      this._scheduledTickFast = endTickFast
+
       // console.log("position2: ", this._scheduledTick)
 
       const ret = getEventsInRange(startTick, endTick, nowTick)

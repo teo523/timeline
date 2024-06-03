@@ -32,6 +32,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
         scrollTop,
         rulerStore: { beats },
         cursorX,
+        cursorX2,
         selectionBounds,
       },
       pianoRollStore2: { scrollLeft: scl },
@@ -89,6 +90,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
           <Transform matrix={scrollXMatrix}>
             <Beats height={height} beats={beats} zIndex={1} />
             <Cursor x={cursorX} height={height} zIndex={5} />
+            {/* <Cursor2 x={cursorX2} height={height} zIndex={5} /> */}
           </Transform>
           <Transform matrix={scrollXYMatrix}>
             <GhostNotes zIndex={2} />
