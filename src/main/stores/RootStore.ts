@@ -29,6 +29,7 @@ export default class RootStore {
   song2: Song = emptySong()
   vampStarts: number[] = []
   vampEnds: number[] = []
+  vampNotes: number[] = []
   mode: number[][] = []
   directControl: boolean = false
   readonly router = new Router()
@@ -60,6 +61,7 @@ export default class RootStore {
       song2: observable.ref,
       vampStarts: observable.ref,
       vampEnds: observable.ref,
+      vampNotes: observable.ref,
       mode: observable.ref,
       directControl: observable.ref,
     })

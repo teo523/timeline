@@ -21,6 +21,8 @@ import { ReaderEvent } from "./ReaderEvent"
 
 export default class Reader {
   private _currentTick: number = 0
+  private _inVamp: boolean = false
+  private _vampIdx: number = 0
   private _notes: [number, number][]
   private _chords: number[][]
   private _songStore: SongStore
@@ -610,22 +612,36 @@ export default class Reader {
     // console.log("this.notes[0][0]: ", this.notes[0][0])
     // console.log("this.notes[0][1]: ", this.notes[0][1])
     // console.log("this._currentTick : ", this._currentTick)
+
     // move reader position
     this._currentTick = this._player.position
-    //if (this._playedNotes[0] === nextNotes[0][1])
-    //this._playedNotes = [...new Set(this._playedNotes)]
-    if (!this._playerOn) {
-      this._player.timeStopped =
-        this._player.timeStopped + performance.now() - this._prevTime
+
+    //check if we entered or exited a vamp section
+    if (!this._inVamp) {
+      this._rootStore.vampStarts.forEach((val, idx) => {
+        if (
+          this._currentTick >= this._rootStore.vampStarts[idx] &&
+          this._currentTick <= this._rootStore.vampEnds[idx]
+        ) {
+          console.log("entered vamp section")
+          this._inVamp = true
+          this._vampIdx = idx
+        }
+      })
+    } else {
+      if (this._currentTick >= this._rootStore.vampEnds[this._vampIdx]) {
+        this._inVamp = false
+        this._vampIdx = 0
+      }
     }
-    this._prevTime = performance.now()
-    if (this._in.length > 0) {
-      // console.log(this.notes)
-      // console.log(this._playedNotes)
-      // console.log(this._playedNotes.length > 0)
-      // console.log(this._currentTick >= this.notes[0][0])
-      // console.log(this._playedNotes[0] != this.notes[0][1])
-    }
+
+    // if (this._in.length > 0) {
+    //   // console.log(this.notes)
+    //   // console.log(this._playedNotes)
+    //   // console.log(this._playedNotes.length > 0)
+    //   // console.log(this._currentTick >= this.notes[0][0])
+    //   // console.log(this._playedNotes[0] != this.notes[0][1])
+    // }
     // If there are no played notes, only action can be to stop the playhead if we reach a new note
     if (
       this._playerOn &&
@@ -637,6 +653,33 @@ export default class Reader {
       this._player.stop()
       console.log("s1")
     }
+
+    // If next note is a vamp loop
+    // 1. Check if note played is first note of vamp and that we are in the end of loop
+    // 2. If so, move playhead to start of vamp
+    // 3. Update notes to be played
+
+    if (this._playedNotes.length > 0) {
+      console.log("this._playedNotes[0][1]", this._playedNotes[0][1])
+      console.log("this._rootStore.vampNotes", this._rootStore.vampNotes)
+      console.log("this._vampIdx", this._vampIdx)
+      console.log("this._inVamp", this._inVamp)
+    }
+    if (
+      this._playedNotes.length > 0 &&
+      this._inVamp &&
+      this._notes[0][0] > this._rootStore.vampEnds[this._vampIdx] &&
+      this._playedNotes[0][1] == this._rootStore.vampNotes[this._vampIdx]
+    ) {
+      console.log("here")
+      this._currentTick = this._player.position =
+        this._rootStore.vampNotes[this._vampIdx] - 2
+      this.allNotes()
+      this._notes = this.getNextNotes()
+      this._chords = this.getChords(this.notes)
+      this._player.noteOffs = this.noteOffs()
+    }
+
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
       //if next event is a chord
       if (this._chords.length > 0 && this._chords[0][0] <= this.notes[0][0]) {

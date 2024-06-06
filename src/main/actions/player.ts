@@ -1,3 +1,4 @@
+import { filterEventsWithRange } from "../../common/helpers/filterEvents"
 import { controllerMidiEvent } from "../../common/midi/MidiEvent"
 import RootStore from "../stores/RootStore"
 import { createEvent as createTrackEvent } from "./"
@@ -181,6 +182,7 @@ export const toggleEnableLoop =
 
 //Create Vamp Start
 export const setVampStart = (rootStore: RootStore) => (tick: number) => {
+  const { song, player } = rootStore
   rootStore.vampStarts.push(tick)
   //console.log(rootStore.vampStarts)
 
@@ -188,15 +190,74 @@ export const setVampStart = (rootStore: RootStore) => (tick: number) => {
   const ccEvent = controllerMidiEvent(0, 0, 84, Math.round(tick))
   console.log(ccEvent)
   createTrackEvent(rootStore)(ccEvent, tick)
+
+  // Add first note of vamp to vampNotes
+  if (rootStore.vampEnds.length == rootStore.vampStarts.length) {
+    //Filter events only in vamp interval
+    const allEvents = filterEventsWithRange(
+      song.tracks[1].allevents,
+      rootStore.vampStarts[rootStore.vampStarts.length - 1],
+      rootStore.vampEnds[rootStore.vampEnds.length - 1],
+    )
+    const noteOns: number[] = []
+
+    //extract only note on events
+    allEvents.forEach((e) => {
+      if (e.type == "channel" && e.subtype == "noteOn") {
+        noteOns.push(e.noteNumber)
+      }
+    })
+
+    //Add only the first note on in vampNotes
+    if (noteOns.length > 0) {
+      rootStore.vampNotes.push(noteOns[0])
+    }
+    //If there are no notes we add a zero, so we keep arrays in same size.
+    else {
+      rootStore.vampNotes.push(-1)
+    }
+  }
 }
 
 export const setVampEnd = (rootStore: RootStore) => (tick: number) => {
+  const { song, player } = rootStore
   rootStore.vampEnds.push(tick)
 
   //Vamp end message is assigned to midi message CC85
   const ccEvent = controllerMidiEvent(0, 0, 85, Math.round(tick))
   console.log(ccEvent)
   createTrackEvent(rootStore)(ccEvent, tick)
+
+  // Add first note of vamp to vampNotes
+  if (rootStore.vampEnds.length == rootStore.vampStarts.length) {
+    //Filter events only in vamp interval
+    const allEvents = filterEventsWithRange(
+      song.tracks[1].allevents,
+      rootStore.vampStarts[rootStore.vampStarts.length - 1],
+      rootStore.vampEnds[rootStore.vampEnds.length - 1],
+    )
+    console.log("allEvents:", allEvents)
+
+    const noteOns: number[] = []
+
+    //extract only note on events
+    allEvents.forEach((e) => {
+      if (e.type == "channel" && e.subtype == "note") {
+        noteOns.push(e.noteNumber)
+      }
+    })
+
+    console.log("noteOns:", noteOns)
+
+    //Add only the first note on in vampNotes
+    if (noteOns.length > 0) {
+      rootStore.vampNotes.push(noteOns[0])
+    }
+    //If there are no notes we add a zero, so we keep arrays in same size.
+    else {
+      rootStore.vampNotes.push(-1)
+    }
+  }
 }
 
 export const setModeChange =
