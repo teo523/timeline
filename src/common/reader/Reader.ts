@@ -673,11 +673,12 @@ export default class Reader {
     ) {
       console.log("here")
       this._currentTick = this._player.position =
-        this._rootStore.vampNotes[this._vampIdx] - 2
+        this._rootStore.vampStarts[this._vampIdx] - 2
       this.allNotes()
       this._notes = this.getNextNotes()
       this._chords = this.getChords(this.notes)
       this._player.noteOffs = this.noteOffs()
+      this._currentTick = this._player.position = this._notes[0][0] - 2
     }
 
     if (this._playedNotes.length > 0 && this.notes.length > 0) {
