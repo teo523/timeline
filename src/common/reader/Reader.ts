@@ -159,7 +159,7 @@ export default class Reader {
                 }
                 const average = sum / this._liveTempo.length
                 this._averageTempo = average
-                // console.log("averageTempo: ", this._averageTempo)
+                console.log("averageTempo: ", this._averageTempo)
               }
               this._lastPlayedTick = this._expectedIn[0][0]
 
@@ -209,7 +209,7 @@ export default class Reader {
                 const average = sum / this._liveTempo.length
                 this._averageTempo = average
                 this._player.averageTempo = average
-                // console.log("averageTempo: ", this._averageTempo)
+                console.log("averageTempo2: ", this._averageTempo)
               }
               this._lastPlayedTick = this._expectedIn[0][0]
 

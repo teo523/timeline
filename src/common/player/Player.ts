@@ -41,6 +41,7 @@ export default class Player {
   private _currentTick = 0
   private _isPlaying = false
   private _noteOffs: number[] = []
+  private _scheduledOffs: number[][] = []
 
   disableSeek: boolean = false
   isMetronomeEnabled: boolean = false
@@ -311,6 +312,26 @@ export default class Player {
     const events = this._scheduler.readNextEvents(this._currentTempo, timestamp)
     //console.log("Events: ", events)
 
+    let a = 0
+
+    if (this._scheduledOffs.length > 0) {
+      for (let off of this._scheduledOffs) {
+        console.log("off[0]: ", off[0])
+        if (this.position >= Number(off[0])) {
+          console.log("1")
+          this.sendEvent(noteOffMidiEvent(0, 1, off[1], 0))
+          console.log("2")
+          a = a + 1
+          console.log("3")
+        }
+      }
+
+      for (let i = 0; i < a; i++) {
+        this._scheduledOffs.shift()
+      }
+      console.log("4")
+    }
+
     events.forEach(({ event: e, timestamp: time }) => {
       if (e.type === "channel") {
         const delayTime = (time - timestamp) / 1000
@@ -330,6 +351,7 @@ export default class Player {
           // Send Channel Event to MIDI OUTPUT
 
           //Schedule couples of noteOn noteOff messages together
+
           if (e.subtype == "noteOn") {
             let ratio = Math.trunc(
               Math.min((100 * this._averageTempo) / this._currentTempo, 127),
@@ -354,6 +376,11 @@ export default class Player {
               timestamp,
             )
             // console.log("duration: ", this._noteOffs[0])
+            this._scheduledOffs.push([
+              this.position + this._noteOffs[0],
+              e.noteNumber,
+            ])
+            console.log("this._scheduledOffs[0]", this._scheduledOffs[0])
             this._noteOffs.shift()
           }
 
