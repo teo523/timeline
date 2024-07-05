@@ -100,7 +100,10 @@ export default class EventScheduler<E extends SchedulableEvent> {
       currentTick: number,
     ) => this._getEvents(startTick, endTick).map(withTimestamp(currentTick))
 
-    if (this._prevTime === undefined) {
+    if (
+      this._prevTime === undefined ||
+      Math.abs(this._prevTime - timestamp) > 100
+    ) {
       this._prevTime = timestamp
     }
     const delta = timestamp - this._prevTime

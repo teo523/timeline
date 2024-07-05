@@ -306,30 +306,24 @@ export default class Player {
 
     //Global time, non stop
     const timestamp = performance.now()
-
     this._scheduler.loop =
       this.loop !== null && this.loop.enabled ? this.loop : null
     const events = this._scheduler.readNextEvents(this._currentTempo, timestamp)
     //console.log("Events: ", events)
-
     let a = 0
 
     if (this._scheduledOffs.length > 0) {
       for (let off of this._scheduledOffs) {
-        console.log("off[0]: ", off[0])
+        // console.log("off[0]: ", off[0])
         if (this.position >= Number(off[0])) {
-          console.log("1")
           this.sendEvent(noteOffMidiEvent(0, 1, off[1], 0))
-          console.log("2")
           a = a + 1
-          console.log("3")
         }
       }
 
       for (let i = 0; i < a; i++) {
         this._scheduledOffs.shift()
       }
-      console.log("4")
     }
 
     events.forEach(({ event: e, timestamp: time }) => {
@@ -357,8 +351,9 @@ export default class Player {
               Math.min((100 * this._averageTempo) / this._currentTempo, 127),
             )
 
+            //Send tempo ratio. This works for CC119 but not for every CC controller.
             this.sendEvent(
-              controllerMidiEvent(0, 1, 103, ratio),
+              controllerMidiEvent(0, 1, 119, ratio),
               0,
               performance.now(),
             )
@@ -380,7 +375,7 @@ export default class Player {
               this.position + this._noteOffs[0],
               e.noteNumber,
             ])
-            console.log("this._scheduledOffs[0]", this._scheduledOffs[0])
+            // console.log("this._scheduledOffs[0]", this._scheduledOffs[0])
             this._noteOffs.shift()
           }
 

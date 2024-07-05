@@ -340,9 +340,15 @@ export default class Reader {
 
     this._notes = input
     this._in = this.groupNotesInput(input)
+    var b = this._in.filter((c) => c[0] >= this._player.position)
+    this._in = b
+
     //this.in = [[0,23],[960,21],[21112,23,44,60],...]
 
     this._out = this.groupNotesOutput(output)
+
+    var a = this._out.filter((c) => c[0][0] >= this._player.position)
+    this._out = a
     this._expectedIn = this._in
     // console.log("this._expectedIn: ", this._expectedIn)
 
@@ -374,6 +380,7 @@ export default class Reader {
       console.warn("called play() while playing. aborted.")
       return
     }
+    console.log("reader start play()")
     // console.log("init:", this._player.position)
     this._currentTick = this._player.position
     console.log("this._player.position: ", this._player.position)
@@ -386,7 +393,6 @@ export default class Reader {
     this._initialPosition = this._player.position
     this._averageTempo = this._player.currentTempo
 
-    console.log("play")
     this._playerOn = true
     this.allNotes()
     this._notes = this.getNextNotes()
@@ -608,10 +614,10 @@ export default class Reader {
   }
 
   private _directControl() {
-    // console.log("DC")
+    console.log("DC")
     // console.log("this.notes[0][0]: ", this.notes[0][0])
     // console.log("this.notes[0][1]: ", this.notes[0][1])
-    // console.log("this._currentTick : ", this._currentTick)
+    console.log("this._position: ", this._player.position)
 
     // move reader position
     this._currentTick = this._player.position
@@ -848,6 +854,8 @@ export default class Reader {
   }
 
   private _autoControl() {
+    console.log("AUTO")
+    console.log("this._position: ", this._player.position)
     const output = this._output
 
     this._noteTimeOut = this._noteTimeIn = performance.now()
@@ -895,7 +903,7 @@ export default class Reader {
             output.sendEvent(noteOnMidiEvent(0, 1, msg[0], msg[1]), 0, time)
             //Send tempo ratio to CC103:
             output.sendEvent(
-              controllerMidiEvent(0, 1, 103, ratio),
+              controllerMidiEvent(0, 1, 119, ratio),
               0,
               performance.now(),
             )
