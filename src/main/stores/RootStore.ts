@@ -27,6 +27,7 @@ import { registerReactions } from "./reactions"
 export default class RootStore {
   song: Song = emptySong()
   song2: Song = emptySong()
+  song3: Song = emptySong()
   vampStarts: number[] = []
   vampEnds: number[] = []
   vampNotes: number[] = []
@@ -59,6 +60,7 @@ export default class RootStore {
     makeObservable(this, {
       song: observable.ref,
       song2: observable.ref,
+      song3: observable.ref,
       vampStarts: observable.ref,
       vampEnds: observable.ref,
       vampNotes: observable.ref,

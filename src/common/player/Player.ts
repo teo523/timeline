@@ -2,7 +2,9 @@ import range from "lodash/range"
 import throttle from "lodash/throttle"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
+import { useStores } from "../../main/hooks/useStores"
 import { SendableEvent, SynthOutput } from "../../main/services/SynthOutput"
+import RootStore from "../../main/stores/RootStore"
 import { SongStore } from "../../main/stores/SongStore"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import { Beat } from "../helpers/mapBeats"
@@ -42,6 +44,7 @@ export default class Player {
   private _isPlaying = false
   private _noteOffs: number[] = []
   private _scheduledOffs: number[][] = []
+  private _rootStore: RootStore
 
   disableSeek: boolean = false
   isMetronomeEnabled: boolean = false
@@ -70,6 +73,8 @@ export default class Player {
     this._trackMute = trackMute
     this._songStore = songStore
     this._notes = []
+    const rootStore = useStores()
+    this._rootStore = rootStore
   }
 
   private get song() {
@@ -347,8 +352,11 @@ export default class Player {
           //Schedule couples of noteOn noteOff messages together
 
           if (e.subtype == "noteOn") {
+            let recTempo =
+              this._songStore.song3.conductorTrack?.getTempo(this.position) ||
+              120
             let ratio = Math.trunc(
-              Math.min((100 * this._averageTempo) / this._currentTempo, 127),
+              Math.min((100 * this._averageTempo) / recTempo, 127),
             )
 
             //Send tempo ratio. This works for CC119 but not for every CC controller.
@@ -357,6 +365,7 @@ export default class Player {
               0,
               performance.now(),
             )
+            console.log("ratio: ", ratio)
 
             this.sendEvent(
               noteOnMidiEvent(0, 1, e.noteNumber, e.velocity),

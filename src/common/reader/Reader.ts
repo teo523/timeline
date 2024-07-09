@@ -614,10 +614,10 @@ export default class Reader {
   }
 
   private _directControl() {
-    console.log("DC")
+    // console.log("DC")
     // console.log("this.notes[0][0]: ", this.notes[0][0])
     // console.log("this.notes[0][1]: ", this.notes[0][1])
-    console.log("this._position: ", this._player.position)
+    // console.log("this._position: ", this._player.position)
 
     // move reader position
     this._currentTick = this._player.position
@@ -891,9 +891,13 @@ export default class Reader {
       let note = 0
 
       //Calculate the ratio between real and original tempo
+      let recTempo =
+        this._songStore.song3.conductorTrack?.getTempo(this._player.position) ||
+        120
       let ratio = Math.trunc(
-        Math.min((100 * this._averageTempo) / this._player.currentTempo, 127),
+        Math.min((100 * this._averageTempo) / recTempo, 127),
       )
+      console.log("ratio: ", ratio)
 
       this._out[0].forEach(function (msg, idx) {
         addNote = false
@@ -901,7 +905,7 @@ export default class Reader {
           console.log(msg)
           if (msg[1] > 0) {
             output.sendEvent(noteOnMidiEvent(0, 1, msg[0], msg[1]), 0, time)
-            //Send tempo ratio to CC103:
+            //Send tempo ratio to CC119:
             output.sendEvent(
               controllerMidiEvent(0, 1, 119, ratio),
               0,

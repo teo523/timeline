@@ -265,7 +265,7 @@ const EventRow: FC<EventRowProps> = React.memo(
       }
     }
 
-    let recTempo = rootStore.song.conductorTrack?.getTempo(item.tick) || 0
+    let recTempo = rootStore.song3.conductorTrack?.getTempo(item.tick) || 0
     let origTempo = rootStore.song2.conductorTrack?.getTempo(item.tick) || 0
 
     const onDelete = useCallback(

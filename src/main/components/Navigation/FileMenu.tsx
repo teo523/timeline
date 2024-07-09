@@ -4,7 +4,7 @@ import { songToMidi } from "../../../common/midi/midiConversion"
 import { Localized } from "../../../components/Localized"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { createSong, saveSong } from "../../actions"
-import { openFile, openFile2 } from "../../actions/file"
+import { openFile, openFile2, openFile3 } from "../../actions/file"
 import { useLocalization } from "../../hooks/useLocalization"
 import { useStores } from "../../hooks/useStores"
 import { useToast } from "../../hooks/useToast"
@@ -57,6 +57,21 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
     }
   }
 
+  const onClickOpen3 = async () => {
+    const { song3 } = rootStore
+    close()
+    try {
+      if (
+        song3.isSaved ||
+        confirm(localized("confirm-open", "Are you sure you want to continue?"))
+      ) {
+        await openFile3(rootStore)
+      }
+    } catch (e) {
+      toast.error((e as Error).message)
+    }
+  }
+
   /*   const onClickSave = async () => {
     close()
     await saveFile(rootStore)
@@ -93,6 +108,10 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
 
       <MenuItem onClick={onClickOpen2}>
         <Localized default="Open Kontakt Part">open-song2</Localized>
+      </MenuItem>
+
+      <MenuItem onClick={onClickOpen3}>
+        <Localized default="Open Recorded Tempo">open-song3</Localized>
       </MenuItem>
 
       <MenuItem onClick={onClickDownload}>

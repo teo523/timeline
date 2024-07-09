@@ -109,6 +109,76 @@ export const setSong2 = (rootStore: RootStore) => (song2: Song) => {
   console.log("data: ", data)
 }
 
+export const setSong3 = (rootStore: RootStore) => (song3: Song) => {
+  const { trackMute, pianoRollStore, player, historyStore, arrangeViewStore } =
+    rootStore
+  rootStore.song3 = song3
+  console.log("setSong3")
+  console.log(song3)
+  trackMute.reset()
+
+  pianoRollStore.setScrollLeftInPixels(0)
+  pianoRollStore.notGhostTracks = new Set()
+  pianoRollStore.selection = null
+  pianoRollStore.selectedNoteIds = []
+  pianoRollStore.selectedTrackId = Math.min(song3.tracks.length - 1, 1)
+
+  arrangeViewStore.selection = null
+  arrangeViewStore.selectedEventIds = []
+
+  historyStore.clear()
+
+  player.stop()
+  player.reset()
+  player.position = 0
+
+  // Create spreadsheet from midi messages at song3:
+
+  let data: number[][] = []
+  let allBeats = createBeatsInRange(
+    song3.measures,
+    song3.timebase,
+    0,
+    song3.endOfSong,
+  )
+
+  //ISSUE TO FIX: when loading "Waving through a window" the 7th note appears incorrect
+
+  const tickToBar = (tick: number, ab: Beat[]): [number, number, number] => {
+    let array: [number, number, number] = [ab[0].measure, ab[0].beat, 0]
+    while (tick > ab[0].tick) {
+      array[0] = ab[0].measure
+      array[1] = ab[0].beat
+      ab.shift()
+    }
+    array[2] = ab[0].tick - tick
+    // console.log(
+    //   "tick: ",
+    //   tick,
+    //   "beatTick: ",
+    //   ab[0].tick,
+    //   ", bar: ",
+    //   array[0],
+    //   ", beat: ",
+    //   array[1],
+    // )
+    return array
+  }
+
+  console.log("song3.getTrack(1)?.events: ", song3.getTrack(1)?.events)
+  song3.getTrack(1)?.events.forEach((e) => {
+    if (e.type === "channel") {
+      if (e.subtype === "note") {
+        let a = tickToBar(e.tick, allBeats)
+
+        data.push(a)
+      }
+    }
+  })
+
+  console.log("data: ", data)
+}
+
 export const createSong = (rootStore: RootStore) => () => {
   const store = rootStore
   setSong(store)(emptySong())
