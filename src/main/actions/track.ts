@@ -286,12 +286,12 @@ export const setTrackVolume =
     reader.tolerance = volume
 
     const track = song.tracks[trackId]
-    track.setVolume(volume, player.position)
+    track.setVolume(volume, player.position - 2)
 
     for (let i in mode) {
       if (
         Number(i) < mode.length - 1 &&
-        mode[Number(i) + 1][0] >= player.position
+        mode[Number(i) + 1][0] >= player.position + 100
       ) {
         mode[i][2] = volume
         break
@@ -317,7 +317,7 @@ export const setTrackVolume2 =
     for (let i in mode) {
       if (
         Number(i) < mode.length - 1 &&
-        mode[Number(i) + 1][0] >= player.position
+        mode[Number(i) + 1][0] >= player.position + 100
       ) {
         mode[i][3] = volume
         break
@@ -342,7 +342,7 @@ export const setTrackVolume3 =
     for (let i in mode) {
       if (
         Number(i) < mode.length - 1 &&
-        mode[Number(i) + 1][0] >= player.position
+        mode[Number(i) + 1][0] >= player.position + 100
       ) {
         mode[i][4] = volume
         break

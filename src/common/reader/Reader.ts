@@ -380,10 +380,10 @@ export default class Reader {
       console.warn("called play() while playing. aborted.")
       return
     }
-    console.log("reader start play()")
+    // console.log("reader start play()")
     // console.log("init:", this._player.position)
     this._currentTick = this._player.position
-    console.log("this._player.position: ", this._player.position)
+    // console.log("this._player.position: ", this._player.position)
     this._isPlaying = true
     this._startTime = performance.now()
     this._noteTimeOut = this._startTime
@@ -400,7 +400,6 @@ export default class Reader {
     this._playedNotes = []
     this._player.noteOffs = this.noteOffs()
 
-    this._handler = new EventHandler()
     if (!this.autoMode) {
       this._interval = window.setInterval(() => this._directControl(), 30)
     } else {
@@ -456,7 +455,7 @@ export default class Reader {
         }
       }
     })
-    console.log("chords: ", chords)
+    // console.log("chords: ", chords)
     return chords
   }
   private groupNotesInput(notes: [number, number][]) {
@@ -510,7 +509,7 @@ export default class Reader {
         }
       }
     })
-    console.log("chords: ", chords)
+    // console.log("chords: ", chords)
     return chords
   }
 
@@ -569,7 +568,7 @@ export default class Reader {
     for (var i in this._mode) {
       if (
         Number(i) < this._mode.length - 1 &&
-        this._mode[Number(i) + 1][0] > this._player.position
+        this._mode[Number(i) + 1][0] > this._player.position + 100
       ) {
         if (this._mode[i][1] == 1) {
           self._autoMode = true
@@ -611,9 +610,14 @@ export default class Reader {
       this.stop()
       this.play()
     }
+    // console.log("mode:", this._mode)
   }
 
   private _directControl() {
+    this._setMode()
+    if (this._autoMode == true) {
+      return
+    }
     // console.log("DC")
     // console.log("this.notes[0][0]: ", this.notes[0][0])
     // console.log("this.notes[0][1]: ", this.notes[0][1])
@@ -665,16 +669,10 @@ export default class Reader {
     // 2. If so, move playhead to start of vamp
     // 3. Update notes to be played
 
-    if (this._playedNotes.length > 0) {
-      console.log("this._playedNotes[0][1]", this._playedNotes[0][1])
-      console.log("this._rootStore.vampNotes", this._rootStore.vampNotes)
-      console.log("this._vampIdx", this._vampIdx)
-      console.log("this._inVamp", this._inVamp)
-    }
     if (
       this._playedNotes.length > 0 &&
       this._inVamp &&
-      this._notes[0][0] > this._rootStore.vampEnds[this._vampIdx] &&
+      this._notes[0][0] >= this._rootStore.vampEnds[this._vampIdx] &&
       this._playedNotes[0][1] == this._rootStore.vampNotes[this._vampIdx]
     ) {
       console.log("here")
@@ -803,7 +801,6 @@ export default class Reader {
     }
 
     //Now handle player
-    this._setMode()
 
     this._player.playNotes()
     if (performance.now() - this._chordCounter > 40) {
@@ -854,9 +851,33 @@ export default class Reader {
   }
 
   private _autoControl() {
-    console.log("AUTO")
-    console.log("this._position: ", this._player.position)
+    console.log("playedNotes:", this._playedNotes)
+    // console.log("this._position: ", this._player.position)
+    this._setMode()
+    // if (this._autoMode == false) {
+    //   return
+    // }
+
     const output = this._output
+
+    //check if we entered or exited a vamp section
+    if (!this._inVamp) {
+      this._rootStore.vampStarts.forEach((val, idx) => {
+        if (
+          this._currentTick >= this._rootStore.vampStarts[idx] &&
+          this._currentTick <= this._rootStore.vampEnds[idx]
+        ) {
+          console.log("entered vamp section")
+          this._inVamp = true
+          this._vampIdx = idx
+        }
+      })
+    } else {
+      if (this._currentTick >= this._rootStore.vampEnds[this._vampIdx]) {
+        this._inVamp = false
+        this._vampIdx = 0
+      }
+    }
 
     this._noteTimeOut = this._noteTimeIn = performance.now()
     this._lastTick = this._player.position
@@ -968,6 +989,111 @@ export default class Reader {
     this._lastTime = performance.now()
 
     this._setMode()
+
+    // if (
+    //   this._inVamp &&
+    //   this._out[0][0][0] > this._rootStore.vampEnds[this._vampIdx]
+    // ) {
+    //   this._autoMode = true
+    // }
+
+    // If next note is a vamp loop
+    // 1. Check if note played is first note of vamp and that we are in the end of loop
+    // 2. If so, move playhead to start of vamp
+    // 3. Update notes to be played
+
+    // console.log("this._inVamp", this._inVamp)
+    // console.log("this._notes", this._notes)
+    // console.log(
+    //   "this._rootStore.vampEnds[this._vampIdx]",
+    //   this._rootStore.vampEnds[this._vampIdx],
+    // )
+    // console.log("this._playedNotes", this._playedNotes)
+    // console.log(
+    //   "this._rootStore.vampNotes[this._vampIdx]",
+    //   this._rootStore.vampNotes[this._vampIdx],
+    // )
+
+    if (
+      this._playedNotes.length > 0 &&
+      this._inVamp &&
+      this._expectedIn[0][0] >= this._rootStore.vampEnds[this._vampIdx] &&
+      this._playedNotes[this._playedNotes.length - 1][1] ==
+        this._rootStore.vampNotes[this._vampIdx]
+    ) {
+      console.log("here")
+      this._currentTick = this._player.position =
+        this._rootStore.vampStarts[this._vampIdx] - 2
+      this.allNotes()
+      this._notes = this.getNextNotes()
+      this._chords = this.getChords(this.notes)
+      this._player.noteOffs = this.noteOffs()
+      this._currentTick = this._player.position = this._expectedIn[0][0] + 2
+      this._out[0].forEach(function (msg, idx) {
+        var addNote = false
+        if (idx > 0) {
+          console.log(msg)
+          if (msg[1] > 0) {
+            output.sendEvent(
+              noteOnMidiEvent(0, 1, msg[0], msg[1]),
+              0,
+              performance.now(),
+            )
+            //Send tempo ratio to CC119:
+
+            addNote = true
+          } else {
+            output.sendEvent(
+              noteOffMidiEvent(0, 1, msg[0], msg[1]),
+              0,
+              performance.now(),
+            )
+          }
+        }
+      })
+      this._out.shift()
+    }
+
+    // // If played the first note from next section
+    // if (
+    //   this._playedNotes.length > 0 &&
+    //   this._inVamp &&
+    //   this._expectedIn[0][0] >= this._rootStore.vampEnds[this._vampIdx] &&
+    //   this._playedNotes[this._playedNotes.length - 1][1] ==
+    //     this._expectedIn[0][0]
+    // ) {
+    //   console.log("here")
+    //   this._currentTick = this._player.position = this._expectedIn[0][0] - 2
+    //   this.allNotes()
+    //   this._notes = this.getNextNotes()
+    //   this._chords = this.getChords(this.notes)
+    //   this._player.noteOffs = this.noteOffs()
+    //   this._currentTick = this._player.position = this._expectedIn[0][0] + 2
+    //   this._out[0].forEach(function (msg, idx) {
+    //     var addNote = false
+    //     if (idx > 0) {
+    //       console.log(msg)
+    //       if (msg[1] > 0) {
+    //         output.sendEvent(
+    //           noteOnMidiEvent(0, 1, msg[0], msg[1]),
+    //           0,
+    //           performance.now(),
+    //         )
+    //         //Send tempo ratio to CC119:
+
+    //         addNote = true
+    //       } else {
+    //         output.sendEvent(
+    //           noteOffMidiEvent(0, 1, msg[0], msg[1]),
+    //           0,
+    //           performance.now(),
+    //         )
+    //       }
+    //     }
+    //   })
+    //   this._out.shift()
+    // }
+
     // console.log(
     //   " performance.now() - currentTime",
     //   performance.now() - currentTime,
