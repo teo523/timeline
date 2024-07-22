@@ -607,8 +607,12 @@ export default class Reader {
     }
 
     if (this._autoMode != initial) {
+      var auxTempo = this._averageTempo
+      var auxLast = this._liveTempo
       this.stop()
       this.play()
+      this._averageTempo = auxTempo
+      this._liveTempo = auxLast
     }
     // console.log("mode:", this._mode)
   }
