@@ -5,6 +5,9 @@ import { setSong, setSong2, setSong3 } from "./song"
 
 // URL parameter for automation purposes used in scripts/perf/index.js
 // /edit?disableFileSystem=true
+
+var fr = new FileReader()
+
 export const disableFileSystem =
   new URL(window.location.href).searchParams.get("disableFileSystem") === "true"
 
@@ -98,6 +101,40 @@ export const openFile3 = async (rootStore: RootStore) => {
   song3.fileHandle = fileHandle
   setSong3(rootStore)(song3)
   console.log(fileHandle)
+}
+
+export const openFile4 = async (rootStore: RootStore) => {
+  let fileHandle: FileSystemFileHandle
+  try {
+    fileHandle = (
+      await window.showOpenFilePicker({
+        types: [
+          {
+            description: "Settings file",
+            accept: { "	application/json": [".json"] },
+          },
+        ],
+      })
+    )[0]
+  } catch (ex) {
+    if ((ex as Error).name === "AbortError") {
+      return
+    }
+    const msg = "An error occured trying to open the file."
+    console.error(msg, ex)
+    alert(msg)
+    return
+  }
+  const file = await fileHandle.getFile()
+  const arr = await file.arrayBuffer()
+  console.log(arr)
+  const arr2 = JSON.parse(new TextDecoder().decode(arr)) // const song3 = await songFromFile(file)
+  // console.log(arr2)
+
+  rootStore.vampStarts = arr2.start
+  rootStore.vampEnds = arr2.end
+  rootStore.mode = arr2.mode
+  console.log(rootStore.mode)
 }
 
 export const songFromFile = async (file: File) => {

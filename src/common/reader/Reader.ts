@@ -565,6 +565,8 @@ export default class Reader {
     let self = this
     let initial = this._autoMode
 
+    this._mode = this._rootStore.mode
+
     for (var i in this._mode) {
       if (
         Number(i) < this._mode.length - 1 &&
@@ -799,7 +801,10 @@ export default class Reader {
       }
     }
 
-    while (this._player.position - 500 > this._expectedIn[0][0]) {
+    while (
+      this._expectedIn.length > 0 &&
+      this._player.position - 500 > this._expectedIn[0][0]
+    ) {
       this._expectedIn.shift()
       //console.log("this._expectedIn: ", this._expectedIn)
     }
@@ -970,7 +975,10 @@ export default class Reader {
     // }
 
     //Remove past notes that haven't been played
-    while (this._player.position - 500 > this._expectedIn[0][0]) {
+    while (
+      this._expectedIn.length > 0 &&
+      this._player.position - 500 > this._expectedIn[0][0]
+    ) {
       this._expectedIn.shift()
       //console.log("this._expectedIn: ", this._expectedIn)
     }
@@ -1020,6 +1028,7 @@ export default class Reader {
 
     if (
       this._playedNotes.length > 0 &&
+      this._expectedIn.length > 0 &&
       this._inVamp &&
       this._expectedIn[0][0] >= this._rootStore.vampEnds[this._vampIdx] &&
       this._playedNotes[this._playedNotes.length - 1][1] ==

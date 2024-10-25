@@ -166,6 +166,14 @@ export function songToMidi(song: Song) {
 
 export function downloadSongAsMidi(song: Song, rootStore: RootStore) {
   const bytes = songToMidi(song)
+  var starts = {
+    start: rootStore.vampStarts,
+    end: rootStore.vampEnds,
+    mode: rootStore.mode,
+  }
   const blob = new Blob([bytes], { type: "application/octet-stream" })
-  downloadBlob(blob, song.filepath.length > 0 ? song.filepath : "no name.mid")
+  const jsonData = new Blob([JSON.stringify(starts)], {
+    type: "application/json",
+  })
+  downloadBlob(jsonData, "no name.json")
 }
