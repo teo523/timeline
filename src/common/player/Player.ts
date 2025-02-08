@@ -358,7 +358,9 @@ export default class Player {
             let ratio = Math.trunc(
               Math.min((100 * this._averageTempo) / recTempo, 127),
             )
-
+            if (isNaN(ratio)) {
+              ratio = 1
+            }
             //Send tempo ratio. This works for CC119 but not for every CC controller.
             this.sendEvent(
               controllerMidiEvent(0, 1, 119, ratio),

@@ -100,8 +100,8 @@ export default class PianoRollStore {
       currentVolume2: computed,
       currentVolume3: computed,
       currentPan: computed,
-      currentTempo: computed,
       playerTempo: computed,
+      currentTempo: computed,
       currentMBTTime: computed,
       cursorX: computed,
       cursorX2: computed,
@@ -387,7 +387,19 @@ export default class PianoRollStore {
     return this.selectedTrack?.getPan(this.rootStore.player.position)
   }
 
+  get playerTempo(): number | undefined {
+    // console.log("get playerTempo", this.rootStore.reader.playerTempo)
+
+    let tempo =
+      this.rootStore.song.conductorTrack?.getTempo(
+        this.rootStore.player.position,
+      ) || 120
+
+    return this.rootStore.reader.playerTempo
+  }
+
   get currentTempo(): number | undefined {
+    // console.log("get currentTempo")
     // console.log(
     //   "currentTempo(): ",
     //   this.rootStore.song.conductorTrack?.getTempo(
@@ -401,16 +413,16 @@ export default class PianoRollStore {
       ) || 120
 
     this.rootStore.player.currentTempo = tempo
-    if (prevTempo != tempo) {
-      // console.log("deleteLiveTempo")
-      this.rootStore.reader.deleteLiveTempo()
-    }
-    return tempo
-  }
+    // if (prevTempo != tempo) {
+    //   console.log("deleteLiveTempo")
+    //   this.rootStore.reader.deleteLiveTempo()
+    // }
 
-  get playerTempo(): number | undefined {
-    // console.log("a")
-    return this.rootStore.reader.playerTempo
+    let tempo2 =
+      this.rootStore.song.conductorTrack?.getTempo(
+        this.rootStore.player.position,
+      ) || 120
+    return tempo
   }
 
   get currentMBTTime(): string {

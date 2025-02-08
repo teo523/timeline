@@ -59,6 +59,7 @@ export const TempoForm: FC = observer(() => {
     song,
     pianoRollStore: { playerTempo, currentTempo },
     player,
+    reader,
   } = useStores()
   const tempo = currentTempo ?? DEFAULT_TEMPO
   const tempo2 = playerTempo ?? DEFAULT_TEMPO

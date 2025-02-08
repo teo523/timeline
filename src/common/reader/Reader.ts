@@ -14,7 +14,7 @@ import {
   noteOffMidiEvent,
   noteOnMidiEvent,
 } from "../midi/MidiEvent"
-import Player from "../player/Player"
+import Player, { DEFAULT_TEMPO } from "../player/Player"
 import EventHandler from "./EventHandler"
 import EventScheduler from "./EventScheduler"
 import { ReaderEvent } from "./ReaderEvent"
@@ -50,7 +50,7 @@ export default class Reader {
   private _lastPlayedTick = 0
   private _prevNoteTime = 0
   private _liveTempo: number[] = []
-  private _averageTempo: number
+  private _averageTempo: number = 120
   private _playedNotes: number[][] = []
   private _tolerance = 30
   private _averageLength: number = 5
@@ -58,6 +58,7 @@ export default class Reader {
   private _chordLock = false
   private _chordCounter = 0
   private _autoMode: boolean = false
+  private _tmp: number = DEFAULT_TEMPO
 
   //Assuming files with resolution of 960
   lastMatchTime = 0
@@ -89,7 +90,7 @@ export default class Reader {
     this._player = player
     this._output = output
     this._interval = null
-    this._averageTempo = this._player.currentTempo
+    this._averageTempo = this._player.currentTempo || 120
   }
 
   addPlayedNote(e: WebMidi.MIDIMessageEvent) {
@@ -209,7 +210,7 @@ export default class Reader {
                 const average = sum / this._liveTempo.length
                 this._averageTempo = average
                 this._player.averageTempo = average
-                console.log("averageTempo2: ", this._averageTempo)
+                // console.log("averageTempo2: ", this._averageTempo)
               }
               this._lastPlayedTick = this._expectedIn[0][0]
 
@@ -385,6 +386,7 @@ export default class Reader {
     this._currentTick = this._player.position
     // console.log("this._player.position: ", this._player.position)
     this._isPlaying = true
+    this._tmp = this._player.currentTempo
     this._startTime = performance.now()
     this._noteTimeOut = this._startTime
     this._noteTimeIn = this._startTime
@@ -620,6 +622,16 @@ export default class Reader {
   }
 
   private _directControl() {
+    // console.log("this._tmp: ", this._tmp)
+    // console.log("this._player.currentTempo: ", this._player.currentTempo)
+
+    if (this._tmp != this._player.currentTempo) {
+      // console.log("deleteLiveTempo")
+      this._tmp = this._player.currentTempo
+      this.deleteLiveTempo()
+    }
+    // console.log("this._liveTempo: ", this._liveTempo)
+
     this._setMode()
     if (this._autoMode == true) {
       return
@@ -628,6 +640,7 @@ export default class Reader {
     // console.log("this.notes[0][0]: ", this.notes[0][0])
     // console.log("this.notes[0][1]: ", this.notes[0][1])
     // console.log("this._position: ", this._player.position)
+    // console.log("this.player.currentTrempo: ", this._player.currentTempo)
 
     // move reader position
     this._currentTick = this._player.position
@@ -845,6 +858,7 @@ export default class Reader {
     for (let i = 0; i < this._averageLength; i++) {
       this._liveTempo.push(this._player.currentTempo)
     }
+    console.log("this._liveTempo", this._liveTempo)
   }
 
   private get timebase() {
@@ -860,7 +874,17 @@ export default class Reader {
   }
 
   private _autoControl() {
-    console.log("playedNotes:", this._playedNotes)
+    // console.log("this._tmp: ", this._tmp)
+    // console.log("this._player.currentTempo: ", this._player.currentTempo)
+
+    if (this._tmp != this._player.currentTempo) {
+      // console.log("deleteLiveTempo")
+      this._tmp = this._player.currentTempo
+      this.deleteLiveTempo()
+    }
+    // console.log("this._liveTempo: ", this._liveTempo)
+
+    // console.log("playedNotes:", this._playedNotes)
     // console.log("this._position: ", this._player.position)
     this._setMode()
     // if (this._autoMode == false) {
@@ -927,8 +951,11 @@ export default class Reader {
       let ratio = Math.trunc(
         Math.min((100 * this._averageTempo) / recTempo, 127),
       )
-      console.log("ratio: ", ratio)
 
+      console.log("ratio: ", ratio)
+      if (isNaN(ratio)) {
+        ratio = 1
+      }
       this._out[0].forEach(function (msg, idx) {
         addNote = false
         if (idx > 0) {
@@ -997,7 +1024,7 @@ export default class Reader {
           ),
         )
     }
-
+    // console.log("this._averageTempo", this._averageTempo)
     this._lastTime = performance.now()
 
     this._setMode()

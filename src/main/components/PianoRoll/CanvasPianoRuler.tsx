@@ -132,10 +132,10 @@ function drawChangeMode(
         ctx.beginPath()
         const x1 = start[index][0] * pixelsPerTick
         const x2 = start[index + 1][0] * pixelsPerTick
-        console.log("start: ", start)
-        console.log("x1: ", x1)
-        console.log("x2: ", x2)
-        console.log("lastTick:", lastTick)
+        // console.log("start: ", start)
+        // console.log("x1: ", x1)
+        // console.log("x2: ", x2)
+        // console.log("lastTick:", lastTick)
 
         ctx.moveTo(x1, 0)
         ctx.lineTo(x2, 0)
