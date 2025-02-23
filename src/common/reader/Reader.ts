@@ -579,6 +579,31 @@ export default class Reader {
           // console.log("changed to auto")
         } else {
           self._autoMode = false
+          //hand-made solution for missing note offs not being passed to auto mode. Check next 10 events and if theres an uncoupled note-off, schedule it
+          let noteons: number[] = []
+          let noteoffs: number[] = []
+          let output = this._output
+          if (this._out.length > 20) {
+            for (let i = 0; i < 10; i++) {
+              this._out[i].forEach(function (msg, idx) {
+                console.log(msg)
+                if (idx > 0) {
+                  if (msg[1] > 0) {
+                    noteons.push(msg[0])
+                  } else {
+                    if (!noteons.includes(msg[0])) {
+                      output.sendEvent(
+                        noteOffMidiEvent(0, 1, msg[0], 0),
+                        30,
+                        performance.now(),
+                      )
+                    }
+                  }
+                }
+              })
+            }
+          }
+
           // console.log("changed to direct")
           // console.log(elem)
         }

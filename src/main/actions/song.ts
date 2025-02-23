@@ -20,8 +20,8 @@ export const setSong = (rootStore: RootStore) => (song: Song) => {
   const { trackMute, pianoRollStore, player, historyStore, arrangeViewStore } =
     rootStore
   rootStore.song = song
-  console.log("Track1: ")
-  console.log(song.tracks[1])
+  console.log("Track0: ")
+  console.log(song.tracks[0])
   trackMute.reset()
 
   pianoRollStore.setScrollLeftInPixels(0)
@@ -95,7 +95,7 @@ export const setSong2 = (rootStore: RootStore) => (song2: Song) => {
     return array
   }
 
-  console.log("song2.getTrack(1)?.events: ", song2.getTrack(1)?.events)
+  console.log("song2.getTrack(0)?.events: ", song2.getTrack(0)?.events)
   song2.getTrack(1)?.events.forEach((e) => {
     if (e.type === "channel") {
       if (e.subtype === "note") {

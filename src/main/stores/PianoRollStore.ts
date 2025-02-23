@@ -411,6 +411,13 @@ export default class PianoRollStore {
       this.rootStore.song.conductorTrack?.getTempo(
         this.rootStore.player.position,
       ) || 120
+    console.log("Tick: ", this.rootStore.player.position)
+
+    console.log("Tempo: ", tempo)
+
+    if (tempo < 15) {
+      tempo = 120
+    }
 
     this.rootStore.player.currentTempo = tempo
     // if (prevTempo != tempo) {
