@@ -112,15 +112,11 @@ export default class Reader {
         // )
         // console.log("this._out: ", this._out)
         this._playedNotes.push([performance.now(), message.noteNumber])
+
         if (this._lastPlayedNote == 0) {
           this._lastPlayedNote = performance.now()
         } else {
           // console.log("this._expectedIn.length", this._expectedIn.length)
-
-          if (this._expectedIn.length > 0) {
-            // console.log("this._expectedIn[0][0]", this._expectedIn[0][0])
-            // console.log("this._player.position", this._player.position)
-          }
 
           if (this._autoMode) {
             if (
@@ -129,7 +125,6 @@ export default class Reader {
                 this.timeRange &&
               message.noteNumber == this._expectedIn[0][1]
             ) {
-              console.log("let delta0")
               let delta0 = this.tickToMillisec(
                 this._expectedIn[0][0] - this._lastPlayedTick,
                 this._player.currentTempo,
@@ -222,95 +217,25 @@ export default class Reader {
           }
         }
 
-        // let time = performance.now()
-        // let lastTick = this._lastPlayedTick
-        // var self = this
-        // this._expectedIn.forEach(function (value, idx) {
-        //   if (
-        //     Math.abs(time - value[1]) < 300 &&
-        //     message.noteNumber == value[2]
-        //   ) {
-        //     let delta0 = self.tickToMillisec(
-        //       value[0] - lastTick,
-        //       self._player.currentTempo,
-        //     )
-        //     let delta1 = performance.now() - self._lastPlayedNote
-        //     let tmp = (self._player.currentTempo * delta0) / delta1
-        //     console.log("delta0: ", delta0)
-        //     console.log("delta1: ", delta1)
-        //     console.log("instant tempo: ", tmp)
-        //     self._liveTempo.push(tmp)
+        //Calculate the ratio between real and original tempo
+        let recTempo =
+          this._songStore.song3.conductorTrack?.getTempo(
+            this._player.position,
+          ) || 120
 
-        //     if (self._liveTempo.length > 5) {
-        //       self._liveTempo.shift()
-        //       let sum = 0
-        //       for (let i = 0; i < self._liveTempo.length; i++) {
-        //         sum += self._liveTempo[i]
-        //       }
-        //       const average = sum / self._liveTempo.length
-        //       self._averageTempo = average
-        //       console.log("averageTempo: ", self._averageTempo)
-        //     }
-        //     self._lastPlayedTick = value[0]
-        //     self._lastPlayedNote = performance.now()
-        //   }
-        // })
-
-        // let delta = performance.now() - this._lastPlayedNote
-        // let segmentTime =
-        //   this.tickToMillisec(this.timebase, this._player.currentTempo) / 2
-        // //When press if slightly after the beat, reduce tempo
-        // if (Math.abs(delta % segmentTime) < 40) {
-        //   console.log("reduce tempo")
-        // this._player.currentTempo =
-        //   this._player.currentTempo *
-        //   (1 -
-        //     (delta % segmentTime) /
-        //       this.tickToMillisec(480, this._player.currentTempo))
+        let ratio = Math.trunc(
+          Math.min((100 * this._averageTempo) / recTempo, 127),
+        )
+        if (isNaN(ratio)) {
+          ratio = 1
+        }
+        //Send tempo ratio. This works for CC119 but not for every CC controller.
+        this._player.sendEvent(
+          controllerMidiEvent(0, 1, 119, ratio),
+          0,
+          performance.now(),
+        )
       }
-      //When press if slightly before the beat, increase tempo
-      // else if (segmentTime - ((delta + segmentTime) % segmentTime) < 40) {
-      //   console.log("increase tempo")
-      // this._player.currentTempo =
-      //   this._player.currentTempo *
-      //   (1 +
-      //     (segmentTime - ((delta + segmentTime) % segmentTime)) /
-      //       this.tickToMillisec(480, this._player.currentTempo))
-
-      // if (
-      //   Math.abs(this._player.position - this._lastPlayedNote[0]) < 50 &&
-      //   message.noteNumber == this._lastPlayedNote[1]
-      // ) {
-      //   this._player.currentTempo =
-      //     this._player.currentTempo *
-      //     (1 -
-      //       (this._player.position - this._lastPlayedNote[0]) /
-      //         this.tickToMillisec(480, this._player.currentTempo))
-      // } else if (
-      //   Math.abs(this._player.position - this._prevNoteTime) < 50 &&
-      //   this._out[0].length > 1
-      // ) {
-      //   if (message.noteNumber == this._out[0][1][0]) {
-      //     this._player.currentTempo =
-      //       this._player.currentTempo *
-      //       (1 +
-      //         (this._out[0][0][0] - this._player.position) /
-      //           this.tickToMillisec(480, this._player.currentTempo))
-      //   }
-      // }
-
-      //console.log(this._player.currentTempo)
-
-      // if (message.subtype == "noteOn") {
-      //   this._playedNotes.push(message.noteNumber)
-      //   this.listenEvents()
-      // }
-      // else if (message.subtype == "noteOff") {
-      //   this._player.sendEvent(
-      //     noteOffMidiEvent(0, 1, message.noteNumber, message.velocity),
-      //   )
-      //   console.log("sent: ", message.noteNumber)
-      // }
     }
     //console.log(this._playedNotes)
   }
