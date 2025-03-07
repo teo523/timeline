@@ -499,10 +499,10 @@ export default class Reader {
         Number(i) < this._mode.length - 1 &&
         this._mode[Number(i) + 1][0] > this._player.position + 100
       ) {
-        if (this._mode[i][1] == 1) {
+        if (this._mode[i][1] == 1 && self._autoMode == false) {
           self._autoMode = true
           // console.log("changed to auto")
-        } else {
+        } else if (this._mode[i][1] == 0 && self._autoMode == true) {
           self._autoMode = false
           //hand-made solution for missing note offs not being passed to auto mode. Check next 10 events and if theres an uncoupled note-off, schedule it
           let noteons: number[] = []
@@ -517,6 +517,7 @@ export default class Reader {
                     noteons.push(msg[0])
                   } else {
                     if (!noteons.includes(msg[0])) {
+                      console.log("sendOff2: ", msg[0])
                       output.sendEvent(
                         noteOffMidiEvent(0, 1, msg[0], 0),
                         30,

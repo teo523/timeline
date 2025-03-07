@@ -67,7 +67,6 @@ export const createBeatsInRange = (
 
     const ticksPerBeat = (timebase * 4) / measure.denominator
 
-    // 次の小節か曲の endTick まで拍を作る
     // Make a beat up to the next bar or song EndTick
     const lastTick = nextMeasure ? nextMeasure.startTick : endTick
 
@@ -86,6 +85,7 @@ export const createBeatsInRange = (
       })
     }
   })
+  console.log("Beats: ", beats)
   return beats
 }
 

@@ -323,6 +323,7 @@ export default class Player {
       for (let off of this._scheduledOffs) {
         // console.log("off[0]: ", off[0])
         if (this.position >= Number(off[0])) {
+          console.log("sendOff: ", off[1])
           this.sendEvent(noteOffMidiEvent(0, 1, off[1], 0))
           a = a + 1
         }
