@@ -138,6 +138,12 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
 
       <MenuDivider />
 
+      <MenuItem onClick={onClickOpenProject}>
+        <Localized default="Open Project">open-project</Localized>
+      </MenuItem>
+
+      <MenuDivider />
+
       <MenuItem onClick={onClickOpen}>
         <Localized default="Open Performer Part">open-song</Localized>
       </MenuItem>
@@ -156,10 +162,6 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
 
       <MenuItem onClick={onClickDownload}>
         <Localized default="Download Settings">download-midi</Localized>
-      </MenuItem>
-
-      <MenuItem onClick={onClickOpenProject}>
-        <Localized default="Open Project">open-project</Localized>
       </MenuItem>
     </>
   )
