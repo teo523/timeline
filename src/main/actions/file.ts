@@ -15,6 +15,57 @@ export const hasFSAccess =
   ("chooseFileSystemEntries" in window || "showOpenFilePicker" in window) &&
   !disableFileSystem
 
+export const openProject = async (rootStore: RootStore) => {
+  try {
+    const dirHandle = await window.showDirectoryPicker()
+    const newFiles = []
+
+    for await (const entry of dirHandle.values()) {
+      if (
+        entry.kind === "file" &&
+        entry.name.toLowerCase().includes("performer")
+      ) {
+        const file = await entry.getFile()
+        const song = await songFromFile(file)
+        song.fileHandle = entry
+        setSong(rootStore)(song)
+      }
+      if (
+        entry.kind === "file" &&
+        entry.name.toLowerCase().includes("kontakt")
+      ) {
+        const file = await entry.getFile()
+        const song2 = await songFromFile(file)
+        song2.fileHandle = entry
+        setSong2(rootStore)(song2)
+      }
+      if (
+        entry.kind === "file" &&
+        entry.name.toLowerCase().includes("recorded")
+      ) {
+        const file = await entry.getFile()
+        const song3 = await songFromFile(file)
+        song3.fileHandle = entry
+        setSong3(rootStore)(song3)
+      }
+
+      if (
+        entry.kind === "file" &&
+        entry.name.toLowerCase().includes("settings")
+      ) {
+        const file = await entry.getFile()
+        const arr = await file.arrayBuffer()
+        const arr2 = JSON.parse(new TextDecoder().decode(arr)) // const song3 = await songFromFile(file)
+        rootStore.vampStarts = arr2.start
+        rootStore.vampEnds = arr2.end
+        rootStore.mode = arr2.mode
+      }
+    }
+  } catch (error) {
+    console.error("Error accessing folder:", error)
+  }
+}
+
 export const openFile = async (rootStore: RootStore) => {
   let fileHandle: FileSystemFileHandle
   try {

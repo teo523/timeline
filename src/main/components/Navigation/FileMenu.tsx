@@ -4,7 +4,13 @@ import { songToMidi } from "../../../common/midi/midiConversion"
 import { Localized } from "../../../components/Localized"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { createSong, saveSong } from "../../actions"
-import { openFile, openFile2, openFile3, openFile4 } from "../../actions/file"
+import {
+  openFile,
+  openFile2,
+  openFile3,
+  openFile4,
+  openProject,
+} from "../../actions/file"
 import { useLocalization } from "../../hooks/useLocalization"
 import { useStores } from "../../hooks/useStores"
 import { useToast } from "../../hooks/useToast"
@@ -24,6 +30,21 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
       confirm(localized("confirm-new", "Are you sure you want to continue?"))
     ) {
       createSong(rootStore)()
+    }
+  }
+
+  const onClickOpenProject = async () => {
+    const { song } = rootStore
+    close()
+    try {
+      if (
+        song.isSaved ||
+        confirm(localized("confirm-open", "Are you sure you want to continue?"))
+      ) {
+        await openProject(rootStore)
+      }
+    } catch (e) {
+      toast.error((e as Error).message)
     }
   }
 
@@ -135,6 +156,10 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
 
       <MenuItem onClick={onClickDownload}>
         <Localized default="Download Settings">download-midi</Localized>
+      </MenuItem>
+
+      <MenuItem onClick={onClickOpenProject}>
+        <Localized default="Open Project">open-project</Localized>
       </MenuItem>
     </>
   )

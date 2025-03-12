@@ -111,6 +111,24 @@ export default class Reader {
         //   this._notes,
         // )
         // console.log("this._out: ", this._out)
+
+        let read = this
+        console.log("this._expectedIn[0]: ", this._expectedIn[0])
+        console.log("this._player.isPlaying: ", this._player.isPlaying)
+        if (!this._player.isPlaying) {
+          console.log("B")
+          if (this.autoMode) {
+            console.log("C")
+            this._expectedIn[0].forEach(function (msg, idx) {
+              if (msg == message.noteNumber) {
+                console.log("message.noteNumber: ", message.noteNumber)
+                console.log("msg: ", msg)
+                read._player.play()
+                read.play()
+              }
+            })
+          }
+        }
         this._playedNotes.push([performance.now(), message.noteNumber])
 
         if (this._lastPlayedNote == 0) {
