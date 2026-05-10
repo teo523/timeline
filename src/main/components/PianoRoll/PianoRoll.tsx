@@ -77,18 +77,23 @@ const PianoRollWrapper: FC = observer(() => {
 
   const onWheel = useCallback(
     (e: React.WheelEvent) => {
+      e.preventDefault()
+
       if (e.shiftKey && (e.altKey || e.ctrlKey)) {
         // vertical zoom
         let scaleYDelta = isTouchPadEvent(e.nativeEvent)
           ? 0.02 * e.deltaY
           : 0.01 * e.deltaX
-        scaleYDelta = clamp(scaleYDelta, -0.15, 0.15) // prevent acceleration to zoom too fast
+
+        scaleYDelta = clamp(scaleYDelta, -0.15, 0.15)
+
         s.scaleAroundPointY(scaleYDelta, e.nativeEvent.offsetY)
         s2.scaleAroundPointY(scaleYDelta, e.nativeEvent.offsetY)
       } else if (e.altKey || e.ctrlKey) {
         // horizontal zoom
         const scaleFactor = isTouchPadEvent(e.nativeEvent) ? 0.01 : -0.01
-        const scaleXDelta = clamp(e.deltaY * scaleFactor, -0.15, 0.15) // prevent acceleration to zoom too fast
+        const scaleXDelta = clamp(e.deltaY * scaleFactor, -0.15, 0.15)
+
         s.scaleAroundPointX(scaleXDelta, e.nativeEvent.offsetX)
         s2.scaleAroundPointX(scaleXDelta, e.nativeEvent.offsetX)
       } else {
@@ -96,7 +101,9 @@ const PianoRollWrapper: FC = observer(() => {
         const scaleFactor = isTouchPadEvent(e.nativeEvent)
           ? 1
           : s.transform.pixelsPerKey * WHEEL_SCROLL_RATE
+
         const deltaY = e.deltaY * scaleFactor
+
         s.scrollBy(-e.deltaX, -deltaY)
         s2.scrollBy(-e.deltaX, -deltaY)
       }
