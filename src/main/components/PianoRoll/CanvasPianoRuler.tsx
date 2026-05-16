@@ -318,9 +318,14 @@ const PianoRuler: FC<PianoRulerProps> = observer(({ rulerStore, style }) => {
 
   const onMouseDown: React.MouseEventHandler<HTMLCanvasElement> = useCallback(
     (e) => {
-      const tick = rulerStore.getTick(e.nativeEvent.offsetX)
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect()
+      const x = e.clientX - rect.left + scrollLeft
+      const tick = rulerStore.getTick(x)
       const quantizedTick = quantizer.round(tick)
       const timeSignature = timeSignatureHitTest(tick)
+
+      console.log("tick:", tick)
+      console.log("qTick:", quantizedTick)
 
       if (e.nativeEvent.ctrlKey) {
         setLoopBegin(rootStore)(quantizedTick)
@@ -335,7 +340,9 @@ const PianoRuler: FC<PianoRulerProps> = observer(({ rulerStore, style }) => {
           }
         } else {
           rulerStore.selectedTimeSignatureEventIds = []
+          console.log(quantizedTick)
           player.position = quantizedTick
+          console.log(player.position)
         }
       }
     },
@@ -391,7 +398,9 @@ const PianoRuler: FC<PianoRulerProps> = observer(({ rulerStore, style }) => {
 
   const onContextMenuWrapper: MouseEventHandler = useCallback(
     (e) => {
-      setRightClickTick(rulerStore.getQuantizedTick(e.nativeEvent.offsetX))
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect()
+      const x = e.clientX - rect.left
+      setRightClickTick(rulerStore.getQuantizedTick(x))
       onContextMenu(e)
     },
     [rulerStore],

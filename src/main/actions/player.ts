@@ -281,3 +281,9 @@ export const setModeChange =
     console.log(ccEvent)
     createTrackEvent(rootStore)(ccEvent, tick)
   }
+
+export const removeModeChange = (rootStore: RootStore) => (tick: number) => {
+  rootStore.mode = rootStore.mode.filter((m) => m[0] !== tick)
+
+  console.log("Updated mode array:", rootStore.mode)
+}

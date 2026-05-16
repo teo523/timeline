@@ -54,7 +54,7 @@ export default class Reader {
   private _playedNotes: number[][] = []
   private _tolerance = 30
   private _averageLength: number = 5
-  private _timeRange = 300
+  private _timeRange = 350
   private _chordLock = false
   private _chordCounter = 0
   private _autoMode: boolean = false

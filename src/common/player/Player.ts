@@ -127,6 +127,8 @@ export default class Player {
     if (this.disableSeek) {
       return
     }
+    console.log("tick:", tick)
+    console.log("song.endOfSong:", this.song.endOfSong)
 
     tick = Math.min(Math.max(Math.floor(tick), 0), this.song.endOfSong)
     if (this._scheduler) {

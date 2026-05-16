@@ -17,12 +17,14 @@ const Parent = styled.div`
   flex-grow: 1;
   background: ${({ theme }) => theme.backgroundColor};
   position: relative;
+  overscroll-behavior-x: contain;
 `
 
 const Alpha = styled.div`
   flex-grow: 1;
   position: relative;
   overflow: hidden !important;
+  overscroll-behavior-x: contain;
 
   .alphaContent {
     position: absolute;
@@ -36,6 +38,7 @@ const Beta = styled.div`
   position: relative;
   border-top: 1px solid ${({ theme }) => theme.dividerColor};
   height: calc(100% - 17px);
+  overscroll-behavior-x: contain;
   overflow: hidden !important;
 `
 

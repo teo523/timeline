@@ -7,10 +7,12 @@ import { Localized } from "../../../components/Localized"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import {
   addTimeSignature,
+  removeModeChange,
   setModeChange,
   setVampEnd,
   setVampStart,
 } from "../../actions"
+
 import { useStores } from "../../hooks/useStores"
 import { RulerStore } from "../../stores/RulerStore"
 import { TimeSignatureDialog } from "./TimeSignatureDialog"
@@ -25,6 +27,14 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
     const { handleClose } = props
     const rootStore = useStores()
     const { song, player } = rootStore
+    const sortedModes = [...rootStore.mode].sort((a, b) => a[0] - b[0])
+    // Find the latest mode change before (or at) the clicked tick
+    const activeModeChange = [...sortedModes]
+      .reverse()
+      .find((m) => m[0] <= tick)
+
+    const activeModeTick = activeModeChange?.[0]
+    const hasModeSection = activeModeTick !== undefined
     const [isOpenTimeSignatureDialog, setOpenTimeSignatureDialog] =
       useState(false)
 
@@ -35,6 +45,14 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
       setOpenTimeSignatureDialog(true)
       handleClose()
     }, [])
+
+    const onClickRemoveModeChange = useCallback(() => {
+      if (activeModeTick !== undefined) {
+        removeModeChange(rootStore)(activeModeTick)
+      }
+
+      handleClose()
+    }, [activeModeTick])
 
     const onClickRemoveTimeSignature = useCallback(() => {
       song.conductorTrack?.removeEvents(
@@ -96,6 +114,14 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
           <MenuItem onClick={onClickSetModeDirect}>
             <Localized default="Start Direct Mode">direct-mode</Localized>
           </MenuItem>
+
+          {hasModeSection && (
+            <MenuItem onClick={onClickRemoveModeChange}>
+              <Localized default="Remove Mode Change">
+                remove-mode-change
+              </Localized>
+            </MenuItem>
+          )}
 
           <MenuDivider />
 
